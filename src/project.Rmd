@@ -1,13 +1,55 @@
 ---
 documentclass: article
-papersize: a4paper
 output:
-  pdf_document:
+  bookdown::pdf_document2:
     latex_engine: xelatex
     includes:
       in_header: preamble.sty
       before_body: titlepage.sty
-  html_document:
-    df_print: paged
+    toc: false
 ---
+
+```{r setup, include=FALSE}
+options(knitr.kable.NA = '')
+knitr::opts_chunk$set(echo = FALSE, fig.pos = "!H", out.extra = "")
+```
+
+\section{Exploratory Data Analysis}
+
+blablablablablablabla
+
+```{r message=FALSE, warning=FALSE}
+library(survival)
+data <- rotterdam
+```
+
+```{r data-desc, echo=FALSE, message=FALSE, warning=FALSE, fig.pos="H"}
+library(kableExtra)
+library(glue)
+table <- rbind(c("pid", "Patient identifier"), 
+               c("year", "Year of surgery"),
+               c("age", "Age at surgery"), 
+               c("meno", "Menopausal status (0 = premenopausal, 1 = postmenopausal)"), 
+               c("size", "Tumor size, a factor with levels <= 20, 20-25, > 50"), 
+               c("grade", "Differentiation grade"), 
+               c("nodes", "Number of positive lymph nodes"), 
+               c("pgr", "Progesterone receptors (fmol/l)"), 
+               c("er", "Estrogen receptors (fmol/l)"),
+               c("hormon", "Hormonal treatment (0=no, 1=yes)"),
+               c("chemo", "Chemotherapy"),
+               c("rtime", "Days to relapse or last follow-up"),
+               c("recur","0 = no relapse, 1 = relapse"),
+               c("dtime","Days to death or last follow-up"),
+               c("death","0 = alive, 1 = dead"))
+kbl(table, booktabs = T, caption = "Data description") %>%
+  kable_styling(latex_options = c("striped", "hold_position"))
+```
+
+Table \@ref(tab:data-desc) explains the covariates in the Rotterdam dataset.
+
+
+\section{Further Analysis}
+
+Now the focus will be on the response variable, the censoring indicator, and the categorical variable.
+
 
