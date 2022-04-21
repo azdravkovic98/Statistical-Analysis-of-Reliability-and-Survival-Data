@@ -1,0 +1,13 @@
+---
+documentclass: article
+papersize: a4paper
+output:
+  pdf_document:
+    latex_engine: xelatex
+    includes:
+      in_header: preamble.sty
+      before_body: titlepage.sty
+  html_document:
+    df_print: paged
+---
+
