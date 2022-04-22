@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/W32TeX) (preloaded format=xelatex 2022.3.21)  22 APR 2022 12:03
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/W32TeX) (preloaded format=xelatex 2022.3.21)  22 APR 2022 12:16
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1607,17 +1607,27 @@ Underfull \hbox (badness 10000) in paragraph at lines 234--236
 [][]
  []
 
-[2] [3] [4] (./project.aux)
+[2] [3]
+File: project_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file (type pdf)
+<use project_files/figure-latex/unnamed-chunk-7-1.pdf>
+File: project_files/figure-latex/unnamed-chunk-8-1.pdf Graphic file (type pdf)
+<use project_files/figure-latex/unnamed-chunk-8-1.pdf>
+
+Underfull \hbox (badness 10000) in paragraph at lines 273--275
+[][]
+ []
+
+[4] [5] (./project.aux)
 Package rerunfilecheck Info: File `project.out' has not changed.
-(rerunfilecheck)             Checksum: 42467ED6734F013FE6FFFBA650598D7B;1297.
+(rerunfilecheck)             Checksum: 2098DD4E2A667E8EC4755719C8D9CE8A;1409.
  ) 
 Here is how much of TeX's memory you used:
- 43852 strings out of 478179
- 1015822 string characters out of 5852894
- 1525409 words of memory out of 5000000
- 63779 multiletter control sequences out of 15000+600000
+ 43872 strings out of 478179
+ 1016838 string characters out of 5852894
+ 1525480 words of memory out of 5000000
+ 63797 multiletter control sequences out of 15000+600000
  472902 words of font info for 61 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 86i,9n,121p,1210b,487s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 86i,9n,121p,1210b,497s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on project.pdf (5 pages).
+Output written on project.pdf (6 pages).
