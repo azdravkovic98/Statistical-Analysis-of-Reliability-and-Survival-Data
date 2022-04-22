@@ -248,7 +248,6 @@ quantile(fit.meno, conf.int = TRUE)
 quantile(fit.hormon, conf.int = TRUE)
 ```
 
-
 \subsubsection{Chemotherapy}
 
 ```{r}
@@ -284,19 +283,19 @@ We fail to reject the null hypothesis, hence we do not have evidence to indicate
 survdiff(Surv(dtime, censored) ~ meno, data = data, rho = 0) # log-rank
 ```
 
-Using the log-rank test, we reject the null hypothesis. Hence, we it is concluded that there is statistically significant difference in survival curves between patients that have gone through menopause, and those who have not.
+Using the log-rank test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through menopause, and those who have not.
 
 ```{r}
 survdiff(Surv(dtime, censored) ~ hormon, data = data, rho = 0) # log-rank
 ```
 
-Using the log-rank test, we reject the null hypothesis. Hence, we it is concluded that there is statistically significant difference in survival curves between patients that have gone through hormonal therapy, and those who have not.
+Using the log-rank test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through hormonal therapy, and those who have not.
 
 ```{r}
 survdiff(Surv(dtime, censored) ~ chemo, data = data, rho = 0) # log-rank
 ```
 
-Using the log-rank test, we reject the null hypothesis. Hence, we it is concluded that there is statistically significant difference in survival curves between patients that have gone through chemotherapy, and those who have not.
+Using the log-rank test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through chemotherapy, and those who have not.
 
 \subsubsection{Peto \& Peto Test}
 
@@ -305,19 +304,19 @@ survdiff(Surv(dtime, censored) ~ meno, data = data, rho = 1)
 ```
 
 
-Using the Peto \& Peto test, we reject the null hypothesis. Hence, we it is concluded that there is statistically significant difference in survival curves between patients that have gone through menopause, and those who have not.
+Using the Peto \& Peto test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through menopause, and those who have not.
 
 ```{r}
 survdiff(Surv(dtime, censored) ~ hormon, data = data, rho = 1) 
 ```
 
-Using the Peto \& Peto test, we reject the null hypothesis. Hence, we it is concluded that there is statistically significant difference in survival curves between patients that have gone through hormonal therapy, and those who have not.
+Using the Peto \& Peto test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through hormonal therapy, and those who have not.
 
 ```{r}
 survdiff(Surv(dtime, censored) ~ chemo, data = data, rho = 1) 
 ```
 
-Using the Peto \& Peto test, we reject the null hypothesis. Hence, we it is concluded that there is statistically significant difference in survival curves between patients that have gone through chemotherapy, and those who have not.
+Using the Peto \& Peto test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through chemotherapy, and those who have not.
 
 
 # Next Steps for Aleks
