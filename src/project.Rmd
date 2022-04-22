@@ -16,11 +16,14 @@ knitr::opts_chunk$set(echo = FALSE, fig.pos = "!H", out.extra = "")
 
 \section{Exploratory Data Analysis}
 
-blablablablablablabla
+These data sets are used in the paper by Royston and Altman that is referenced below. The Rotterdam data is used to create a fitted model, and the GBSG data for validation of the model. The paper gives references for the data source.
+
+There are 43 subjects who have died without recurrence, but whose death time is greater than the censoring time for recurrence. A common way that this happens is that a death date is updated in the health record sometime after the research study ended, and said value is then picked up when a study data set is created. But it raises serious questions about censoring. For instance subject 40 is censored for recurrence at 4.2 years and died at 6.6 years; when creating the endpoint of recurrence free survival (earlier of recurrence or death), treating them as a death at 6.6 years implicitly assumes that they were recurrence free just before death. For this to be true we would have to assume that if they had progressed in the 2.4 year interval before death (while off study), that this information would also have been noted in their general medical record, and would also be captured in the study data set. However, that may be unlikely. Death information is often in a centralized location in electronic health records, easily accessed by a programmer and merged with the study data, while recurrence may require manual review. How best to address this is an open issue.
 
 ```{r message=FALSE, warning=FALSE}
 library(survival)
 data <- rotterdam
+data$censored <- ifelse(data$recur == 0 | (data$recur == 1 & data$death == 0), TRUE, FALSE)
 ```
 
 ```{r data-desc, echo=FALSE, message=FALSE, warning=FALSE, fig.pos="H"}
@@ -47,9 +50,81 @@ kbl(table, booktabs = T, caption = "Data description") %>%
 
 Table \@ref(tab:data-desc) explains the covariates in the Rotterdam dataset.
 
-
 \section{Further Analysis}
 
 Now the focus will be on the response variable, the censoring indicator, and the categorical variable.
+
+\subsection{Survival Distrubution by Levels of ...}
+
+(a) For each of the levels of the categorical variable, compute the survival distribution. Plot them on the same graph. What do the graphs suggest? 
+
+\subsubsection{Size}
+
+```{r message=FALSE, warning=FALSE}
+fit <- survfit(Surv(dtime, censored) ~ size, data = data)
+print(fit)
+
+# Access to the sort summary table
+summary(fit)$table
+
+d <- data.frame(time = fit$time,
+                n.risk = fit$n.risk,
+                n.event = fit$n.event,
+                n.censor = fit$n.censor,
+                surv = fit$surv,
+                upper = fit$upper,
+                lower = fit$lower)
+head(d)
+```
+```{r message=FALSE, warning=FALSE}
+#install.packages("survminer")
+library(survminer)
+ggsurvplot(fit,
+           pval = TRUE, conf.int = TRUE,
+           risk.table = TRUE, # Add risk table
+           risk.table.col = "strata", # Change risk table color by groups
+           linetype = "strata", # Change line type by groups
+           surv.median.line = "hv", # Specify median survival
+           ggtheme = theme_bw(), # Change ggplot2 theme
+           palette = c("#E7B800", "#2E9FDF", "maroon2"), 
+           data = data)
+```
+```{r message=FALSE, warning=FALSE}
+ggsurvplot(fit,                     # survfit object with calculated statistics.
+           pval = TRUE,             # show p-value of log-rank test.
+           conf.int = TRUE,         # show confidence intervals for point estimates of survival curves.
+           conf.int.style = "step",  # customize style of confidence intervals
+           xlab = "Time in days",   # customize X axis label.
+           break.time.by = 1500,     # break X axis in time intervals by ...
+           ggtheme = theme_light(), # customize plot and risk table with a theme.
+           risk.table = "abs_pct",  # absolute number and percentage at risk.
+           risk.table.y.text.col = T,# color risk table text annotations.
+           risk.table.y.text = FALSE,# show bars instead of names in text annotations in legend of risk table.
+           ncensor.plot = TRUE,      # plot the number of censored subjects at time t
+           surv.median.line = "hv",  # add the median survival pointer.
+           palette = c("#E7B800", "#2E9FDF", "maroon2"), # custom color palettes.
+           data = data,
+           xlim = c(0, 4500))
+```
+The horizontal axis represents time in days, and the vertical axis shows the probability of surviving, or the proportion of people surviving. The lines represent survival curves of the three groups. A vertical drop in the curves indicates an event. The vertical tick mark on the curves means that a patient was censored at this time.
+
+At time zero, the survival probability is 1.0 (or 100% of the participants are alive).
+At time 2250, the probability of survival is approximately 0.625 for size>=50, and 0.85 for size<50.
+The median survival is approximately 3300 for size>=50, and a bit more for other two groups, suggesting slightly worse survival for patients with tumor of larger size. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
+
+The median survival times for each group can be seen from:
+
+```{r}
+summary(fit)$table
+```
+
+
+\subsection{Confidence Intervals and Estimators by Levels of ...}
+
+(b) For each level obtain an appropriate estimator and confidence interval for the 3 quartiles of the survival curves. Interpret the results. 
+
+\subsection{Test of Differences Between the Survival Curves}
+
+(c) Conduct a single test of differences between the survival curves. Justify your choice of test.
 
 

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/W32TeX) (preloaded format=xelatex 2022.3.21)  21 APR 2022 13:55
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/W32TeX) (preloaded format=xelatex 2022.3.21)  22 APR 2022 12:03
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1560,27 +1560,27 @@ File: logo.png Graphic file (type bmp)
 
 ]
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 7.0pt on input line 160.
+(Font)              scaled to size 7.0pt on input line 162.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 5.0pt on input line 160.
+(Font)              scaled to size 5.0pt on input line 162.
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
-60.
+62.
 (c:/Users/azdra/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 10.00092pt on input line 160.
+(Font)              scaled to size 10.00092pt on input line 162.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 7.00064pt on input line 160.
+(Font)              scaled to size 7.00064pt on input line 162.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 5.00046pt on input line 160.
+(Font)              scaled to size 5.00046pt on input line 162.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 9.99893pt on input line 160.
+(Font)              scaled to size 9.99893pt on input line 162.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 6.99925pt on input line 160.
+(Font)              scaled to size 6.99925pt on input line 162.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 4.99947pt on input line 160.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 160
+(Font)              scaled to size 4.99947pt on input line 162.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 162
 .
 (c:/Users/azdra/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
@@ -1589,7 +1589,7 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 fg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 160
+LaTeX Font Info:    Trying to load font information for U+msb on input line 162
 .
 (c:/Users/azdra/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -1597,17 +1597,27 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 (c:/Users/azdra/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.c
 fg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
-) [1] (./project.aux)
+) [1]
+File: project_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf)
+<use project_files/figure-latex/unnamed-chunk-3-1.pdf>
+File: project_files/figure-latex/unnamed-chunk-4-1.pdf Graphic file (type pdf)
+<use project_files/figure-latex/unnamed-chunk-4-1.pdf>
+
+Underfull \hbox (badness 10000) in paragraph at lines 234--236
+[][]
+ []
+
+[2] [3] [4] (./project.aux)
 Package rerunfilecheck Info: File `project.out' has not changed.
-(rerunfilecheck)             Checksum: D4662F18201A4F39DE6BE971D6ADCEBE;300.
+(rerunfilecheck)             Checksum: 42467ED6734F013FE6FFFBA650598D7B;1297.
  ) 
 Here is how much of TeX's memory you used:
- 43816 strings out of 478179
- 1014519 string characters out of 5852894
- 1517409 words of memory out of 5000000
- 63750 multiletter control sequences out of 15000+600000
- 472894 words of font info for 60 fonts, out of 8000000 for 9000
+ 43852 strings out of 478179
+ 1015822 string characters out of 5852894
+ 1525409 words of memory out of 5000000
+ 63779 multiletter control sequences out of 15000+600000
+ 472902 words of font info for 61 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 86i,9n,121p,1004b,479s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 86i,9n,121p,1210b,487s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on project.pdf (2 pages).
+Output written on project.pdf (5 pages).
