@@ -7,6 +7,8 @@ output:
       in_header: preamble.sty
       before_body: titlepage.sty
     toc: false
+bibliography: bibliography.bib
+link-citations: true
 ---
 
 ```{r setup, include=FALSE}
@@ -122,7 +124,7 @@ summary(fit)$table
 
 ```{r message=FALSE, warning=FALSE}
 fit.meno <- survfit(Surv(dtime, censored) ~ meno, data = data)
-print(fit)
+print(fit.meno)
 
 # Access to the sort summary table
 summary(fit.meno)$table
@@ -136,48 +138,195 @@ ggsurvplot(fit.meno,
            linetype = "strata", # Change line type by groups
            surv.median.line = "hv", # Specify median survival
            ggtheme = theme_bw(), # Change ggplot2 theme
-           palette = c("#E7B800", "#2E9FDF", "maroon2"), 
+           palette = c("#E7B800", "#2E9FDF"), 
            data = data)
 ```
 
-```{r message=FALSE, warning=FALSE}
-ggsurvplot(fit.meno,                     # survfit object with calculated statistics.
-           pval = TRUE,             # show p-value of log-rank test.
-           conf.int = TRUE,         # show confidence intervals for point estimates of survival curves.
-           conf.int.style = "step",  # customize style of confidence intervals
-           xlab = "Time in days",   # customize X axis label.
-           break.time.by = 1500,     # break X axis in time intervals by ...
-           ggtheme = theme_light(), # customize plot and risk table with a theme.
-           risk.table = "abs_pct",  # absolute number and percentage at risk.
-           risk.table.y.text.col = T,# color risk table text annotations.
-           risk.table.y.text = FALSE,# show bars instead of names in text annotations in legend of risk table.
-           ncensor.plot = TRUE,      # plot the number of censored subjects at time t
-           surv.median.line = "hv",  # add the median survival pointer.
-           palette = c("#E7B800", "#2E9FDF", "maroon2"), # custom color palettes.
-           data = data,
-           xlim = c(0, 4500))
+```{r median-meno, include=TRUE, message = FALSE}
+fit.meno.table <- summary(fit.meno)$table
+kable(fit.meno.table, 
+      caption = "Median survival times for each group.") %>%
+kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
 The horizontal axis represents time in days, and the vertical axis shows the probability of surviving, or the proportion of people surviving. The lines represent survival curves of the three groups. A vertical drop in the curves indicates an event. The vertical tick mark on the curves means that a patient was censored at this time.
 
 At time zero, the survival probability is 1.0 (or 100% of the participants are alive).
-At time 2250, the probability of survival is approximately 0.625 for size>=50, and 0.85 for size<50.
-The median survival is approximately 3300 for size>=50, and a bit more for other two groups, suggesting slightly worse survival for patients with tumor of larger size. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
+At time 2200, the probability of survival is approximately 0.75 for premenopausal patients, and 0.825 for postmenopausal patients.
 
-The median survival times for each group can be seen from:
+From Table \@ref(tab:median-meno) can be seen that the median survival is 3407 for premenopausal patients, and 3200 for postmenopausal, suggesting slightly worse survival for patients that have gone through menopause. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
 
-```{r}
-summary(fit.meno)$table
+
+
+\subsubsection{Hormonal Treatment}
+
+```{r message=FALSE, warning=FALSE}
+fit.hormon <- survfit(Surv(dtime, censored) ~ hormon, data = data)
+print(fit.hormon)
 ```
 
+```{r message=FALSE, warning=FALSE}
+ggsurvplot(fit.hormon,
+           pval = TRUE, conf.int = TRUE,
+           risk.table = TRUE, # Add risk table
+           risk.table.col = "strata", # Change risk table color by groups
+           linetype = "strata", # Change line type by groups
+           surv.median.line = "hv", # Specify median survival
+           ggtheme = theme_bw(), # Change ggplot2 theme
+           palette = c("#E7B800", "#2E9FDF"), 
+           data = data)
+```
 
+```{r median-hormon, include=TRUE, message = FALSE}
+fit.hormon.table <- summary(fit.hormon)$table
+kable(fit.hormon.table, 
+      caption = "Median survival times for each group.") %>%
+kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
+```
+
+The horizontal axis represents time in days, and the vertical axis shows the probability of surviving, or the proportion of people surviving. The lines represent survival curves of the three groups. A vertical drop in the curves indicates an event. The vertical tick mark on the curves means that a patient was censored at this time.
+
+At time zero, the survival probability is 1.0 (or 100% of the participants are alive).
+At time 2200, the probability of survival is approximately 0.75 for premenopausal patients, and 0.825 for postmenopausal patients.
+
+From Table \@ref(tab:median-hormon) can be seen that the median survival is 3407 for premenopausal patients, and 3200 for postmenopausal, suggesting slightly worse survival for patients that have gone through menopause. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
+
+\subsubsection{Chemotherapy}
+
+```{r message=FALSE, warning=FALSE}
+fit.chemo <- survfit(Surv(dtime, censored) ~ chemo, type="kaplan-meier", data = data)
+print(fit.chemo)
+```
+
+```{r message=FALSE, warning=FALSE}
+ggsurvplot(fit.chemo,
+           pval = TRUE, conf.int = TRUE,
+           risk.table = TRUE, # Add risk table
+           risk.table.col = "strata", # Change risk table color by groups
+           linetype = "strata", # Change line type by groups
+           surv.median.line = "hv", # Specify median survival
+           ggtheme = theme_bw(), # Change ggplot2 theme
+           palette = c("#E7B800", "#2E9FDF"), 
+           data = data)
+```
+
+```{r median-chemo, include=TRUE, message = FALSE}
+fit.chemo.table <- summary(fit.hormon)$table
+kable(fit.chemo.table, 
+      caption = "Median survival times for each group.") %>%
+kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
+```
+
+The horizontal axis represents time in days, and the vertical axis shows the probability of surviving, or the proportion of people surviving. The lines represent survival curves of the three groups. A vertical drop in the curves indicates an event. The vertical tick mark on the curves means that a patient was censored at this time.
+
+At time zero, the survival probability is 1.0 (or 100% of the participants are alive).
+At time 2200, the probability of survival is approximately 0.75 for premenopausal patients, and 0.825 for postmenopausal patients.
+
+From Table \@ref(tab:median-hormon) can be seen that the median survival is 3407 for premenopausal patients, and 3200 for postmenopausal, suggesting slightly worse survival for patients that have gone through menopause. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
 
 
 \subsection{Confidence Intervals and Estimators by Levels of ...}
 
 (b) For each level obtain an appropriate estimator and confidence interval for the 3 quartiles of the survival curves. Interpret the results. 
 
+\subsubsection{Size}
+
+```{r}
+quantile(fit, conf.int = TRUE)
+```
+
+
+\subsubsection{Menopause}
+
+```{r}
+quantile(fit.meno, conf.int = TRUE)
+```
+
+
+\subsubsection{Hormonal Treatment}
+
+```{r}
+quantile(fit.hormon, conf.int = TRUE)
+```
+
+
+\subsubsection{Chemotherapy}
+
+```{r}
+quantile(fit.chemo, conf.int = TRUE)
+```
+
+
 \subsection{Test of Differences Between the Survival Curves}
 
 (c) Conduct a single test of differences between the survival curves. Justify your choice of test.
 
+### I need to rephrase all of this text, because it's been copy-pasted!!! ###
+
+Now, the questions that arises is if these two curves are statistically equivalent. For answering it, we can use the log-rank test (Mantel 1966; Peto and Peto 1972). This is the most well-known and widely used method to test the null hypothesis of no difference in survival between two or more independent groups. It is a large-sample chi-square test that is obtained by constructing a two by two contingency table at each distinct event time, and comparing the failure rates between the two groups, conditional on the number at risk in each group. The test compares the entire survival experience between groups and can be thought of as a test of whether the survival curves are identical or not.
+
+When we state that two KM curves are statistically equivalent, we mean that, based on a testing procedure that compares the two curves in some overall sense, we do not have evidence to indicate that the true (population) survival curves are different.
+The null hypothesis of the testing procedure is that there is no overall difference between the two (or k) survival curves. Under this, the log–rank statistic is approximately a chi-square with k−1 degree of freedom. Thus, tables of the chi-square distribution are used to determine the p-value.
+This test is the one with most power to test differences that fit the proportional hazards model - so works well as a set-up for subsequent Cox regression. It gives equal weight to early and late failures.
+
+An alternative test that is often used is the Peto & Peto (Peto and Peto 1972) modification of the Gehan-Wilcoxon test (Gehan 1965). This last one is a variation of the log-rank test statistic and is derived by applying different weights at the f−th failure time. This approach is most sensitive to early differences (or earlier time points) between survival.
+This type of weighting may be used to assess whether the effect of a treatment/marketing campaign on survival is strongest in the earlier phases of administration/contacto and tends to be less effective over time. [@short-couse-SA]
+
+```{r}
+# with more than 2 groups
+survdiff(Surv(dtime, censored) ~ size, data = data)
+```
+
+We fail to reject the null hypothesis, hence we do not have evidence to indicate that the three survival curves are different.
+
+\subsubsection{Log-rank Test}
+
+```{r}
+survdiff(Surv(dtime, censored) ~ meno, data = data, rho = 0) # log-rank
+```
+
+Using the log-rank test, we reject the null hypothesis. Hence, we it is concluded that there is statistically significant difference in survival curves between patients that have gone through menopause, and those who have not.
+
+```{r}
+survdiff(Surv(dtime, censored) ~ hormon, data = data, rho = 0) # log-rank
+```
+
+Using the log-rank test, we reject the null hypothesis. Hence, we it is concluded that there is statistically significant difference in survival curves between patients that have gone through hormonal therapy, and those who have not.
+
+```{r}
+survdiff(Surv(dtime, censored) ~ chemo, data = data, rho = 0) # log-rank
+```
+
+Using the log-rank test, we reject the null hypothesis. Hence, we it is concluded that there is statistically significant difference in survival curves between patients that have gone through chemotherapy, and those who have not.
+
+\subsubsection{Peto \& Peto Test}
+
+```{r}
+survdiff(Surv(dtime, censored) ~ meno, data = data, rho = 1) 
+```
+
+
+Using the Peto \& Peto test, we reject the null hypothesis. Hence, we it is concluded that there is statistically significant difference in survival curves between patients that have gone through menopause, and those who have not.
+
+```{r}
+survdiff(Surv(dtime, censored) ~ hormon, data = data, rho = 1) 
+```
+
+Using the Peto \& Peto test, we reject the null hypothesis. Hence, we it is concluded that there is statistically significant difference in survival curves between patients that have gone through hormonal therapy, and those who have not.
+
+```{r}
+survdiff(Surv(dtime, censored) ~ chemo, data = data, rho = 1) 
+```
+
+Using the Peto \& Peto test, we reject the null hypothesis. Hence, we it is concluded that there is statistically significant difference in survival curves between patients that have gone through chemotherapy, and those who have not.
+
+
+# Next Steps for Aleks
+
+* Keep researching to decide which test is appropriate for survival curves diff testing
+* Format text
+* Make all ugly R outputs into nice, coherent tables
+
+# References
+
+<div id="refs"></div>
 
