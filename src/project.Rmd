@@ -80,7 +80,7 @@ head(d)
 ```
 ```{r message=FALSE, warning=FALSE}
 #install.packages("survminer")
-library(survminer)
+library(survminer) 
 ggsurvplot(fit,
            pval = TRUE, conf.int = TRUE,
            risk.table = TRUE, # Add risk table
