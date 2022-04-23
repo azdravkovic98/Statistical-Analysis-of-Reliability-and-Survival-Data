@@ -80,7 +80,7 @@ head(d)
 ```
 ```{r message=FALSE, warning=FALSE}
 #install.packages("survminer")
-library(survminer) 
+library(survminer)
 ggsurvplot(fit,
            pval = TRUE, conf.int = TRUE,
            risk.table = TRUE, # Add risk table
@@ -317,6 +317,37 @@ survdiff(Surv(dtime, censored) ~ chemo, data = data, rho = 1)
 ```
 
 Using the Peto \& Peto test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through chemotherapy, and those who have not.
+
+\subsection {Parametric Regression Models}
+
+```{r}
+library(KMsurv)
+library(survival)
+
+logn = survreg(Surv(dtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="lognormal")
+weib = survreg(Surv(dtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="weibull")
+expon = survreg(Surv(dtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="exponential")
+loglogist = survreg(Surv(dtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="loglogistic")
+AIC = c(extractAIC(logn)[2], extractAIC(weib)[2], extractAIC(expon)[2], extractAIC(loglogist)[2])
+names(AIC) = c( "log(normal)", "weibull", "exponential", "log(logistic)")
+AIC
+
+```
+
+
+
+
+```{r}
+# How do we do a linear model? Is this a PH model?
+weib$coefficients
+
+```
+
+
+```{r}
+confint(weib)
+```
+
 
 
 # Next Steps for Aleks
