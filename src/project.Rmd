@@ -347,6 +347,14 @@ weib$coefficients
 ```{r}
 confint(weib)
 ```
+```{r}
+betaHat <- -coef(weib) / weib$scale
+betaHat
+```
+```{r}
+fitCox <- coxph(Surv(dtime, censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data)
+coef(fitCox)
+```
 
 
 
