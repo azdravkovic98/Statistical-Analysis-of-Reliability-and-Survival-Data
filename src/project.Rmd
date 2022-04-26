@@ -318,6 +318,69 @@ survdiff(Surv(dtime, censored) ~ chemo, data = data, rho = 1)
 
 Using the Peto \& Peto test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through chemotherapy, and those who have not.
 
+\subsection {Semi Parametric PH models}
+
+```{r}
+library(KMsurv)
+library(MASS)
+##fitting full model
+fit_ph1<-coxph(Surv(dtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
+               +pgr+er+rtime+recur, data=data)
+
+##Backward variable selection based on p-value
+anova(fit_ph1)
+fit_ph2<-coxph(Surv(dtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
+               +pgr+rtime+recur, data=data)
+anova(fit_ph2)
+fit_ph3<-coxph(Surv(dtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
+               +rtime+recur, data=data)
+anova(fit_ph3)
+fit_ph4<-coxph(Surv(dtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)
+               +rtime+recur, data=data)
+anova(fit_ph4)
+summary(fit_ph4)
+#all variables in fit_ph4 is significant
+#variable selection based on AIC
+stepAIC(fit_ph1,direction="both")
+
+#chosen model: Surv(dtime, censored) ~ meno + hormon + as.factor(size) + age + 
+# nodes + pgr + er + rtime + recur
+
+fit_ph_final= coxph(formula = Surv(dtime, censored) ~ meno + hormon + as.factor(size) + 
+    age + nodes + pgr + er + rtime + recur, data = data)
+summary(fit_ph_final)
+## ??? do you think stepwise AIC selection would work better than selection based on p-value?
+
+##CI for HR of size>50 vs size20-50
+covmat<-vcov(fit_ph4)
+covmat
+#exp(fit_ph4$coefficients['as.factor(size)>50']-fit_ph4$coefficients['as.factor(size)20-50'] #+qnorm(0,025)*sqrt(covmat['as.factor(size)>50','as.factor(size)>50']))
+###QUESTION: Do we have tied observations??
+```
+Estimation and CI of relative risks for every pair of levels of the categorical variables are as below:
+HR of chemo vs non-chemo: 1.0423 with 95%CI [0.91353   1.18914]
+HR of meno vs non-meno: 0.8160 with 95%CI [0.69415   0.95916]
+HR of hormon treatment vs no treatment: 1.7815 with 95%CI [0.69415   0.95916]
+HR of size20-50 vs size<=20: 0.8650 with 95%CI [0.78503   0.95308]
+HR of size>50 vs size<=20: 0.9678 with 95%CI [0.79736   1.17457]
+HR of size>50 vs size20-50: exp(Beta(size>50)-Beta(size20-50))={exp(fit_ph4$coefficients['as.factor(size)>50'])/exp(fit_ph4$coefficients['as.factor(size)20-50'])}=1.118818 with 95%CI [??]
+HR of age i vs age i-1: 1.0075 with 95%CI [1.00110   1.01387]
+HR of grade 3 vs grade 2: 1.0575  with 95%CI [0.95655   1.16910]
+HR of recur vs non-recur: 0.0131  with 95%CI [0.01043   0.01646]
+HR of rtime i vs rtime i-1: 0.9985  with 95%CI [0.99841   0.99854]
+
+```{r}
+#Test for assumption of constant HR 
+test<-cox.zph(fit_ph4)
+test
+plot(x)
+
+```
+We run a statistical test based on Schoenfeld residuals for proportional hazard assumption for each covariate included in the cox fit. From the output, one can see that test is statistically significant for some covariates like size,grade, rtime and recur and so is the global test. So we can state that proportional hazard assumption is violated since there is significant dependency between Schoenfeld residuals and time.
+
+##next step Q: should we also check outliers and nonlinearity between log hazard and covariates??
+
+
 \subsection {Parametric Regression Models}
 
 ```{r}
