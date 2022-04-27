@@ -58,7 +58,10 @@ kbl(table, booktabs = T, caption = "Data description") %>%
 
 Table \@ref(tab:data-desc) explains the covariates in the Rotterdam dataset.
 
-```{r}
+
+When we investigate the categorical variables, we see that some have a larger difference between time until recurrence than others.  When we first investigate menopause, we see that recurring patients are very similar in their recurrence time.  However, non-recurring patients have a slightly lower median with a similar distribution.  A very similar pattern is observed for chemotherapy but the non-recurring patients had a slightly higher time before leaving the study.  While size, having three levels, needs to be interpreted slightly differently.  With patients that relapsed into cancer, the larger cancer cells certainly caused it to happen sooner.  This makes intuitive sense that more severe cancer would have more long term health risks.  Among patients that do not relapse, only the extremely large cancer patients had a much lower recurrence time.  While small and medium patients had a very similar response.  Grade had a very similar response among relapsing and non-relapsing patients.  Patients given hormonal therapy seem to have a smaller tail among relapsing patients, meaning those who relapse are more likely to do it soon after treatment.  Non-relapsing patients that had hormonal therapy also appear to be censored more quickly than those who do not receive the treatment.
+
+```{r boxPlots, include=TRUE, message = FALSE}
 menoBox <- ggplot(data, aes(x = recur, y = rtime, fill=recur, linetype=meno,colour=meno)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
 menoBox
 chemoBox <- ggplot(data, aes(x = recur, y = rtime, fill=recur, linetype=chemo,colour=chemo)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
@@ -69,6 +72,40 @@ gradeBox <- ggplot(data, aes(x = recur, y = rtime, fill=recur, linetype=grade,co
 gradeBox
 hormonBox <- ggplot(data, aes(x = recur, y = rtime, fill=recur, linetype=hormon,colour=hormon)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
 hormonBox
+```
+
+
+
+Among continuous variables, we first investigated age.  We plotted a both the lowess curve and the linear model to see if they match.  If so, they most likely have data with a limited skew and do not require transformation for modeling.  We first evaluated age and there was a difference between the linear and lowess curves.  To adjust for this, a log transform was performed and the fit generally improved for most of the data.  Next, we investigated the relationship between er and relapse time.  Here we see a large deviation which was corrected for again with a log transform.  Finally, we evaluated pgr and it had a good fit.
+
+
+
+```{r scatterPlots, include=TRUE, message=FALSE}
+
+# Basic age
+ggplot(data, aes(x = age, y = rtime, color = censored)) +
+  geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
+  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
+
+# log(age)
+ggplot(data, aes(x = log(age), y = rtime, color = censored)) +
+  geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
+  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
+
+# er
+ggplot(data, aes(x = er, y = rtime, color = censored)) +
+  geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
+  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
+
+# log(er)
+ggplot(data, aes(x = log(er), y = rtime, color = censored)) +
+  geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
+  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
+
+ggplot(data, aes(x = pgr, y = rtime, color = censored)) +
+  geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
+  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
+
 ```
 
 
