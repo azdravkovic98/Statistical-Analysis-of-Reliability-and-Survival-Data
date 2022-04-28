@@ -455,24 +455,21 @@ AIC
 We first evaluate parametric models based on variables already selected in the previous section.  Here we are comparing log (normal), weibull, exponential, and log (logistic) distributions.  This is done by using AIC and identifying if the additional parameters are worth it.  What we see is that the log(normal) distribution has the best AIC at `r AIC$log(normal)`.  It should be noted that these AIC values can not be directly compared to the semi-parametric values.  We have calculated the linear coefficient predictions to be the negative of the log(normal) coefficients.
 
 
-
-```{r}
+```{r CoefficientComparison}
 # Linear model predictors
-cbind(summary(weib), -weib$coefficients)
+library(broom)
+
+bestModel <- weib
+tidyModel <- tidy(bestModel, type = 'text')
+tidyModel <- head(tidyModel, nrow(tidyModel)-1)
+linCoeffs <- c(-bestModel$coefficients)
+table <- tidyModel
+table <- cbind(tidyModel, confint(bestModel), linCoeffs)
+table
 ```
 
 
-```{r}
-# Linear CIs
-confint(weib)
-```
-```{r}
-aftEstimations <- -weib$coefficients
-aftEstimations
-# AFT estimations are -value +- 1.96 * std error
-```
-
-
+When we look at our categorical variable, chemo, it is highly significant and the confidence interval confirms this as it does not contain 0.
 
 
 
