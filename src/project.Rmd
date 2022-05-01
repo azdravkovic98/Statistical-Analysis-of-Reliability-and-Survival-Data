@@ -9,6 +9,9 @@ output:
     toc: false
 bibliography: bibliography.bib
 link-citations: true
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -18,9 +21,28 @@ knitr::opts_chunk$set(echo = FALSE, fig.pos = "!H", out.extra = "")
 
 \section{Exploratory Data Analysis}
 
-These data sets are used in the paper by Royston and Altman that is referenced below. The Rotterdam data is used to create a fitted model, and the GBSG data for validation of the model. The paper gives references for the data source.
+These data sets are used in the paper by Royston and Altman that is
+referenced below. The Rotterdam data is used to create a fitted model,
+and the GBSG data for validation of the model. The paper gives
+references for the data source.
 
-There are 43 subjects who have died without recurrence, but whose death time is greater than the censoring time for recurrence. A common way that this happens is that a death date is updated in the health record sometime after the research study ended, and said value is then picked up when a study data set is created. But it raises serious questions about censoring. For instance subject 40 is censored for recurrence at 4.2 years and died at 6.6 years; when creating the endpoint of recurrence free survival (earlier of recurrence or death), treating them as a death at 6.6 years implicitly assumes that they were recurrence free just before death. For this to be true we would have to assume that if they had progressed in the 2.4 year interval before death (while off study), that this information would also have been noted in their general medical record, and would also be captured in the study data set. However, that may be unlikely. Death information is often in a centralized location in electronic health records, easily accessed by a programmer and merged with the study data, while recurrence may require manual review. How best to address this is an open issue.
+There are 43 subjects who have died without recurrence, but whose death
+time is greater than the censoring time for recurrence. A common way
+that this happens is that a death date is updated in the health record
+sometime after the research study ended, and said value is then picked
+up when a study data set is created. But it raises serious questions
+about censoring. For instance subject 40 is censored for recurrence at
+4.2 years and died at 6.6 years; when creating the endpoint of
+recurrence free survival (earlier of recurrence or death), treating them
+as a death at 6.6 years implicitly assumes that they were recurrence
+free just before death. For this to be true we would have to assume that
+if they had progressed in the 2.4 year interval before death (while off
+study), that this information would also have been noted in their
+general medical record, and would also be captured in the study data
+set. However, that may be unlikely. Death information is often in a
+centralized location in electronic health records, easily accessed by a
+programmer and merged with the study data, while recurrence may require
+manual review. How best to address this is an open issue.
 
 ```{r message=FALSE, warning=FALSE}
 library(survival)
@@ -50,38 +72,39 @@ kbl(table, booktabs = T, caption = "Data description") %>%
   kable_styling(latex_options = c("striped", "hold_position"))
 ```
 
-Table \@ref(tab:data-desc) explains the covariates in the Rotterdam dataset.
+Table \@ref(tab:data-desc) explains the covariates in the Rotterdam
+dataset.
 
 \section{Further Analysis}
 
-Now the focus will be on the response variable, the censoring indicator, and the categorical variable.
+Now the focus will be on the response variable, the censoring indicator,
+and the categorical variable.
 
 \subsection{Survival Distrubution by Levels of ...}
 
-(a) For each of the levels of the categorical variable, compute the survival distribution. Plot them on the same graph. What do the graphs suggest? 
+(a) For each of the levels of the categorical variable, compute the
+    survival distribution. Plot them on the same graph. What do the
+    graphs suggest?
 
 \subsubsection{Size}
 
 ```{r message=FALSE, warning=FALSE}
-fit <- survfit(Surv(dtime, censored) ~ size, data = data)
-print(fit)
+fit.size <- survfit(Surv(rtime, censored) ~ size, data = data)
 
-# Access to the sort summary table
-summary(fit)$table
-
-d <- data.frame(time = fit$time,
-                n.risk = fit$n.risk,
-                n.event = fit$n.event,
-                n.censor = fit$n.censor,
-                surv = fit$surv,
-                upper = fit$upper,
-                lower = fit$lower)
+d <- data.frame(time = fit.size$time,
+                n.risk = fit.size$n.risk,
+                n.event = fit.size$n.event,
+                n.censor = fit.size$n.censor,
+                surv = fit.size$surv,
+                upper = fit.size$upper,
+                lower = fit.size$lower)
 head(d)
 ```
+
 ```{r message=FALSE, warning=FALSE}
 #install.packages("survminer")
 library(survminer)
-ggsurvplot(fit,
+ggsurvplot(fit.size,
            pval = TRUE, conf.int = TRUE,
            risk.table = TRUE, # Add risk table
            risk.table.col = "strata", # Change risk table color by groups
@@ -91,8 +114,9 @@ ggsurvplot(fit,
            palette = c("#E7B800", "#2E9FDF", "maroon2"), 
            data = data)
 ```
+
 ```{r message=FALSE, warning=FALSE}
-ggsurvplot(fit,                     # survfit object with calculated statistics.
+ggsurvplot(fit.size,                     # survfit object with calculated statistics.
            pval = TRUE,             # show p-value of log-rank test.
            conf.int = TRUE,         # show confidence intervals for point estimates of survival curves.
            conf.int.style = "step",  # customize style of confidence intervals
@@ -108,26 +132,33 @@ ggsurvplot(fit,                     # survfit object with calculated statistics.
            data = data,
            xlim = c(0, 4500))
 ```
-The horizontal axis represents time in days, and the vertical axis shows the probability of surviving, or the proportion of people surviving. The lines represent survival curves of the three groups. A vertical drop in the curves indicates an event. The vertical tick mark on the curves means that a patient was censored at this time.
 
-At time zero, the survival probability is 1.0 (or 100% of the participants are alive).
-At time 2250, the probability of survival is approximately 0.625 for size>=50, and 0.85 for size<50.
-The median survival is approximately 3300 for size>=50, and a bit more for other two groups, suggesting slightly worse survival for patients with tumor of larger size. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
+The horizontal axis represents time in days, and the vertical axis shows
+the probability of surviving, or the proportion of people surviving. The
+lines represent survival curves of the three groups. A vertical drop in
+the curves indicates an event. The vertical tick mark on the curves
+means that a patient was censored at this time.
 
-The median survival times for each group can be seen from:
 
-```{r}
-summary(fit)$table
+```{r median-size, echo=FALSE, message=FALSE, warning=FALSE}
+fit.size.table <- summary(fit.size)$table
+rownames(fit.size.table) <- c("Size ($\\leq$20)", "Size (20$-$50)", "Size ($>$50)")
+#colnames(fit.size.table) <- c()
+
+kbl(fit.size.table, 
+    escape = FALSE, booktabs = T,
+    caption = "Summary of the model.") %>%
+  kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
+
+At time zero, the survival probability is 1.0 (or 100% of the participants are alive). At time 2250, the probability of survival is approximately 0.625 for size\>=50, and 0.85 for size\<50. 
+
+From Table \@ref(tab:median-size) can be seen that the median survival for Size \geq 50 is `r fit.size.table[, 'median'][1]`, for Size  20-50 is `r fit.size.table[, 'median'][2]`, and for Size \> 50 is `r fit.size.table[, 'median'][3]`. This suggests slightly worse survival for patients with tumor of larger size. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
 
 \subsubsection{Menopause}
 
 ```{r message=FALSE, warning=FALSE}
-fit.meno <- survfit(Surv(dtime, censored) ~ meno, data = data)
-print(fit.meno)
-
-# Access to the sort summary table
-summary(fit.meno)$table
+fit.meno <- survfit(Surv(rtime, censored) ~ meno, data = data)
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -144,24 +175,33 @@ ggsurvplot(fit.meno,
 
 ```{r median-meno, include=TRUE, message = FALSE}
 fit.meno.table <- summary(fit.meno)$table
-kable(fit.meno.table, 
-      caption = "Median survival times for each group.") %>%
-kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
+rownames(fit.meno.table) <- c("Meno = 0", "Meno = 1")
+#colnames(fit.meno.table) <- c()
+
+kbl(fit.meno.table, 
+    escape = FALSE, booktabs = T,
+    caption = "Median survival times for each group.") %>%
+  kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
-The horizontal axis represents time in days, and the vertical axis shows the probability of surviving, or the proportion of people surviving. The lines represent survival curves of the three groups. A vertical drop in the curves indicates an event. The vertical tick mark on the curves means that a patient was censored at this time.
 
-At time zero, the survival probability is 1.0 (or 100% of the participants are alive).
-At time 2200, the probability of survival is approximately 0.75 for premenopausal patients, and 0.825 for postmenopausal patients.
+The horizontal axis represents time in days, and the vertical axis shows
+the probability of surviving, or the proportion of people surviving. The
+lines represent survival curves of the three groups. A vertical drop in
+the curves indicates an event. The vertical tick mark on the curves
+means that a patient was censored at this time.
 
-From Table \@ref(tab:median-meno) can be seen that the median survival is 3407 for premenopausal patients, and 3200 for postmenopausal, suggesting slightly worse survival for patients that have gone through menopause. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
+At time zero, the survival probability is 1.0 (or 100% of the
+participants are alive). At time 2200, the probability of survival is
+approximately 0.75 for premenopausal patients, and 0.825 for
+postmenopausal patients.
 
-
+From Table \@ref(tab:median-meno) can be seen that the median survival is `r fit.meno.table[,'median'][1]` for premenopausal patients, and `r fit.meno.table[,'median'][2]` for postmenopausal, suggesting slightly worse survival for patients that have gone through
+menopause. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
 
 \subsubsection{Hormonal Treatment}
 
 ```{r message=FALSE, warning=FALSE}
-fit.hormon <- survfit(Surv(dtime, censored) ~ hormon, data = data)
-print(fit.hormon)
+fit.hormon <- survfit(Surv(rtime, censored) ~ hormon, data = data)
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -183,18 +223,24 @@ kable(fit.hormon.table,
 kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
 
-The horizontal axis represents time in days, and the vertical axis shows the probability of surviving, or the proportion of people surviving. The lines represent survival curves of the three groups. A vertical drop in the curves indicates an event. The vertical tick mark on the curves means that a patient was censored at this time.
+The horizontal axis represents time in days, and the vertical axis shows
+the probability of surviving, or the proportion of people surviving. The
+lines represent survival curves of the three groups. A vertical drop in
+the curves indicates an event. The vertical tick mark on the curves
+means that a patient was censored at this time.
 
-At time zero, the survival probability is 1.0 (or 100% of the participants are alive).
-At time 2200, the probability of survival is approximately 0.75 for premenopausal patients, and 0.825 for postmenopausal patients.
+At time zero, the survival probability is 1.0 (or 100% of the
+participants are alive). At time 2200, the probability of survival is
+approximately 0.75 for premenopausal patients, and 0.825 for
+postmenopausal patients.
 
-From Table \@ref(tab:median-hormon) can be seen that the median survival is 3407 for premenopausal patients, and 3200 for postmenopausal, suggesting slightly worse survival for patients that have gone through menopause. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
+From Table \@ref(tab:median-hormon) can be seen that the median survival is `r fit.hormon.table[,'median'][1]` for patients that went through hormonal therapy, and `r fit.hormon.table[,'median'][2]` for those who did not, suggesting slightly worse survival for patients that have gone through the hormonal therapy. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
+
 
 \subsubsection{Chemotherapy}
 
 ```{r message=FALSE, warning=FALSE}
-fit.chemo <- survfit(Surv(dtime, censored) ~ chemo, type="kaplan-meier", data = data)
-print(fit.chemo)
+fit.chemo <- survfit(Surv(rtime, censored) ~ chemo, type="kaplan-meier", data = data)
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -210,37 +256,42 @@ ggsurvplot(fit.chemo,
 ```
 
 ```{r median-chemo, include=TRUE, message = FALSE}
-fit.chemo.table <- summary(fit.hormon)$table
+fit.chemo.table <- summary(fit.chemo)$table
 kable(fit.chemo.table, 
       caption = "Median survival times for each group.") %>%
 kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
 
-The horizontal axis represents time in days, and the vertical axis shows the probability of surviving, or the proportion of people surviving. The lines represent survival curves of the three groups. A vertical drop in the curves indicates an event. The vertical tick mark on the curves means that a patient was censored at this time.
+The horizontal axis represents time in days, and the vertical axis shows
+the probability of surviving, or the proportion of people surviving. The
+lines represent survival curves of the three groups. A vertical drop in
+the curves indicates an event. The vertical tick mark on the curves
+means that a patient was censored at this time.
 
-At time zero, the survival probability is 1.0 (or 100% of the participants are alive).
-At time 2200, the probability of survival is approximately 0.75 for premenopausal patients, and 0.825 for postmenopausal patients.
+At time zero, the survival probability is 1.0 (or 100% of the
+participants are alive). At time 2200, the probability of survival is
+approximately 0.75 for premenopausal patients, and 0.825 for
+postmenopausal patients.
 
-From Table \@ref(tab:median-hormon) can be seen that the median survival is 3407 for premenopausal patients, and 3200 for postmenopausal, suggesting slightly worse survival for patients that have gone through menopause. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
-
+From Table \@ref(tab:median-chemo) can be seen that the median survival is `r fit.hormon.table[,'median'][1]` for patients that went through hormonal therapy, and `r fit.hormon.table[,'median'][2]` for those who did not, suggesting slightly better survival for patients that have gone through chemotherapy. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
 
 \subsection{Confidence Intervals and Estimators by Levels of ...}
 
-(b) For each level obtain an appropriate estimator and confidence interval for the 3 quartiles of the survival curves. Interpret the results. 
+(b) For each level obtain an appropriate estimator and confidence
+    interval for the 3 quartiles of the survival curves. Interpret the
+    results.
 
 \subsubsection{Size}
 
 ```{r}
-quantile(fit, conf.int = TRUE)
+quantile(fit.size, conf.int = TRUE)
 ```
-
 
 \subsubsection{Menopause}
 
 ```{r}
 quantile(fit.meno, conf.int = TRUE)
 ```
-
 
 \subsubsection{Hormonal Treatment}
 
@@ -254,101 +305,145 @@ quantile(fit.hormon, conf.int = TRUE)
 quantile(fit.chemo, conf.int = TRUE)
 ```
 
-
 \subsection{Test of Differences Between the Survival Curves}
 
-(c) Conduct a single test of differences between the survival curves. Justify your choice of test.
+(c) Conduct a single test of differences between the survival curves.
+    Justify your choice of test.
 
-### I need to rephrase all of this text, because it's been copy-pasted!!! ###
+### I need to rephrase all of this text, because it's been copy-pasted!!!
 
-Now, the questions that arises is if these two curves are statistically equivalent. For answering it, we can use the log-rank test (Mantel 1966; Peto and Peto 1972). This is the most well-known and widely used method to test the null hypothesis of no difference in survival between two or more independent groups. It is a large-sample chi-square test that is obtained by constructing a two by two contingency table at each distinct event time, and comparing the failure rates between the two groups, conditional on the number at risk in each group. The test compares the entire survival experience between groups and can be thought of as a test of whether the survival curves are identical or not.
+Now, the questions that arises is if these two curves are statistically
+equivalent. For answering it, we can use the log-rank test (Mantel 1966;
+Peto and Peto 1972). This is the most well-known and widely used method
+to test the null hypothesis of no difference in survival between two or
+more independent groups. It is a large-sample chi-square test that is
+obtained by constructing a two by two contingency table at each distinct
+event time, and comparing the failure rates between the two groups,
+conditional on the number at risk in each group. The test compares the
+entire survival experience between groups and can be thought of as a
+test of whether the survival curves are identical or not.
 
-When we state that two KM curves are statistically equivalent, we mean that, based on a testing procedure that compares the two curves in some overall sense, we do not have evidence to indicate that the true (population) survival curves are different.
-The null hypothesis of the testing procedure is that there is no overall difference between the two (or k) survival curves. Under this, the log–rank statistic is approximately a chi-square with k−1 degree of freedom. Thus, tables of the chi-square distribution are used to determine the p-value.
-This test is the one with most power to test differences that fit the proportional hazards model - so works well as a set-up for subsequent Cox regression. It gives equal weight to early and late failures.
+When we state that two KM curves are statistically equivalent, we mean
+that, based on a testing procedure that compares the two curves in some
+overall sense, we do not have evidence to indicate that the true
+(population) survival curves are different. The null hypothesis of the
+testing procedure is that there is no overall difference between the two
+(or k) survival curves. Under this, the log--rank statistic is
+approximately a chi-square with k−1 degree of freedom. Thus, tables of
+the chi-square distribution are used to determine the p-value. This test
+is the one with most power to test differences that fit the proportional
+hazards model - so works well as a set-up for subsequent Cox regression.
+It gives equal weight to early and late failures.
 
-An alternative test that is often used is the Peto & Peto (Peto and Peto 1972) modification of the Gehan-Wilcoxon test (Gehan 1965). This last one is a variation of the log-rank test statistic and is derived by applying different weights at the f−th failure time. This approach is most sensitive to early differences (or earlier time points) between survival.
-This type of weighting may be used to assess whether the effect of a treatment/marketing campaign on survival is strongest in the earlier phases of administration/contacto and tends to be less effective over time. [@short-couse-SA]
+An alternative test that is often used is the Peto & Peto (Peto and Peto
+1972) modification of the Gehan-Wilcoxon test (Gehan 1965). This last
+one is a variation of the log-rank test statistic and is derived by
+applying different weights at the f−th failure time. This approach is
+most sensitive to early differences (or earlier time points) between
+survival. This type of weighting may be used to assess whether the
+effect of a treatment/marketing campaign on survival is strongest in the
+earlier phases of administration/contacto and tends to be less effective
+over time. [@short-couse-SA]
 
 ```{r}
 # with more than 2 groups
-survdiff(Surv(dtime, censored) ~ size, data = data)
+survdiff(Surv(rtime, censored) ~ size, data = data)
 ```
 
-We fail to reject the null hypothesis, hence we do not have evidence to indicate that the three survival curves are different.
+We fail to reject the null hypothesis, hence we do not have evidence to
+indicate that the three survival curves are different.
 
 \subsubsection{Log-rank Test}
 
 ```{r}
-survdiff(Surv(dtime, censored) ~ meno, data = data, rho = 0) # log-rank
+survdiff(Surv(rtime, censored) ~ meno, data = data, rho = 0) # log-rank
 ```
 
-Using the log-rank test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through menopause, and those who have not.
+Using the log-rank test, we reject the null hypothesis. Hence, it is
+concluded that there is statistically significant difference in survival
+curves between patients who have gone through menopause, and those who
+have not.
 
 ```{r}
-survdiff(Surv(dtime, censored) ~ hormon, data = data, rho = 0) # log-rank
+survdiff(Surv(rtime, censored) ~ hormon, data = data, rho = 0) # log-rank
 ```
 
-Using the log-rank test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through hormonal therapy, and those who have not.
+Using the log-rank test, we reject the null hypothesis. Hence, it is
+concluded that there is statistically significant difference in survival
+curves between patients who have gone through hormonal therapy, and
+those who have not.
 
 ```{r}
-survdiff(Surv(dtime, censored) ~ chemo, data = data, rho = 0) # log-rank
+survdiff(Surv(rtime, censored) ~ chemo, data = data, rho = 0) # log-rank
 ```
 
-Using the log-rank test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through chemotherapy, and those who have not.
+Using the log-rank test, we reject the null hypothesis. Hence, it is
+concluded that there is statistically significant difference in survival
+curves between patients who have gone through chemotherapy, and those
+who have not.
 
 \subsubsection{Peto \& Peto Test}
 
 ```{r}
-survdiff(Surv(dtime, censored) ~ meno, data = data, rho = 1) 
+survdiff(Surv(rtime, censored) ~ meno, data = data, rho = 1) 
 ```
 
-
-Using the Peto \& Peto test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through menopause, and those who have not.
+Using the Peto & Peto test, we reject the null hypothesis. Hence, it is
+concluded that there is statistically significant difference in survival
+curves between patients who have gone through menopause, and those who
+have not.
 
 ```{r}
-survdiff(Surv(dtime, censored) ~ hormon, data = data, rho = 1) 
+survdiff(Surv(rtime, censored) ~ hormon, data = data, rho = 1) 
 ```
 
-Using the Peto \& Peto test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through hormonal therapy, and those who have not.
+Using the Peto & Peto test, we reject the null hypothesis. Hence, it is
+concluded that there is statistically significant difference in survival
+curves between patients who have gone through hormonal therapy, and
+those who have not.
 
 ```{r}
-survdiff(Surv(dtime, censored) ~ chemo, data = data, rho = 1) 
+survdiff(Surv(rtime, censored) ~ chemo, data = data, rho = 1) 
 ```
 
-Using the Peto \& Peto test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through chemotherapy, and those who have not.
+Using the Peto & Peto test, we reject the null hypothesis. Hence, it is
+concluded that there is statistically significant difference in survival
+curves between patients who have gone through chemotherapy, and those
+who have not.
 
-\subsection {Semi Parametric PH models}
+\section{Modeling}
+
+\subsection{Semiparametric PH modeling}
 
 ```{r}
 library(KMsurv)
 library(MASS)
+
 ##fitting full model
-fit_ph1<-coxph(Surv(dtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
-               +pgr+er+rtime+recur, data=data)
+fit_ph1 <- coxph(Surv(rtime, censored) ~ chemo + meno + hormon+as.factor(size)+age+as.factor(grade)+nodes
+               +pgr+er, data=data)
 
-##Backward variable selection based on p-value
-anova(fit_ph1)
-fit_ph2<-coxph(Surv(dtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
-               +pgr+rtime+recur, data=data)
-anova(fit_ph2)
-fit_ph3<-coxph(Surv(dtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
-               +rtime+recur, data=data)
-anova(fit_ph3)
-fit_ph4<-coxph(Surv(dtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)
-               +rtime+recur, data=data)
-anova(fit_ph4)
-summary(fit_ph4)
+# ##Backward variable selection based on p-value
+# anova(fit_ph1)
+# fit_ph2<-coxph(Surv(rtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
+#                +pgr+rtime+recur, data=data)
+# anova(fit_ph2)
+# fit_ph3<-coxph(Surv(rtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
+#                +rtime+recur, data=data)
+# anova(fit_ph3)
+# fit_ph4<-coxph(Surv(rtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)
+#                +rtime+recur, data=data)
+# anova(fit_ph4)
+# summary(fit_ph4)
 #all variables in fit_ph4 is significant
+
 #variable selection based on AIC
-stepAIC(fit_ph1,direction="both")
+#stepAIC <- stepAIC(fit_ph1,direction="both")
 
-#chosen model: Surv(dtime, censored) ~ meno + hormon + as.factor(size) + age + 
-# nodes + pgr + er + rtime + recur
+#chosen model: Surv(rtime, censored) ~ chemo + meno + hormon + age + as.factor(grade)3 + nodes + pgr
 
-fit_ph_final= coxph(formula = Surv(dtime, censored) ~ meno + hormon + as.factor(size) + 
-    age + nodes + pgr + er + rtime + recur, data = data)
-summary(fit_ph_final)
+fit_ph4 <- coxph(formula = Surv(rtime, censored) ~ chemo + meno + hormon + age + as.factor(grade) + nodes + pgr, data = data)
+summary(fit_ph4)
 ## ??? do you think stepwise AIC selection would work better than selection based on p-value?
 
 ##CI for HR of size>50 vs size20-50
@@ -356,30 +451,59 @@ covmat<-vcov(fit_ph4)
 covmat
 #exp(fit_ph4$coefficients['as.factor(size)>50']-fit_ph4$coefficients['as.factor(size)20-50'] #+qnorm(0,025)*sqrt(covmat['as.factor(size)>50','as.factor(size)>50']))
 ###QUESTION: Do we have tied observations??
+summary(fit_ph4)
 ```
-Estimation and CI of relative risks for every pair of levels of the categorical variables are as below:
-HR of chemo vs non-chemo: 1.0423 with 95%CI [0.91353   1.18914]
-HR of meno vs non-meno: 0.8160 with 95%CI [0.69415   0.95916]
-HR of hormon treatment vs no treatment: 1.7815 with 95%CI [0.69415   0.95916]
-HR of size20-50 vs size<=20: 0.8650 with 95%CI [0.78503   0.95308]
-HR of size>50 vs size<=20: 0.9678 with 95%CI [0.79736   1.17457]
-HR of size>50 vs size20-50: exp(Beta(size>50)-Beta(size20-50))={exp(fit_ph4$coefficients['as.factor(size)>50'])/exp(fit_ph4$coefficients['as.factor(size)20-50'])}=1.118818 with 95%CI [??]
-HR of age i vs age i-1: 1.0075 with 95%CI [1.00110   1.01387]
-HR of grade 3 vs grade 2: 1.0575  with 95%CI [0.95655   1.16910]
-HR of recur vs non-recur: 0.0131  with 95%CI [0.01043   0.01646]
-HR of rtime i vs rtime i-1: 0.9985  with 95%CI [0.99841   0.99854]
+
+```{r relative-risks-tbl, echo=FALSE, message=FALSE, warning=FALSE}
+relativeRisks.table <- function(model, digits = 3) {
+  
+  table <- round(summary(model)$conf.int[, -2], digits)
+  label <- c("")
+  
+  # Add row names after the models have been fixed!
+  rownames(table) <- c("Chemo", "Meno", "Hormon", "Size (20-50)", "Size (>50)", 
+                       "Age", "Grade = 3", "Nodes", "Pgr", "Er")
+  colnames(table) <- c("$exp(\\hat{\\beta})$", "5\\%", "95\\%")
+
+  table
+}
+
+kbl(relativeRisks.table(fit_ph1), 
+    escape = FALSE, booktabs = T,
+    caption = "Estimators and confidence intervals for relative risks under xxxxx model.") %>%
+  kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
+```
+
+`r summary(fit_ph1)$conf.int[1,1]`
+
+Estimation and CI of relative risks for every pair of levels of the
+categorical variables are as below: HR of chemo vs non-chemo: 1.0423
+with 95%CI [0.91353 1.18914] HR of meno vs non-meno: 0.8160 with 95%CI
+[0.69415 0.95916] HR of hormon treatment vs no treatment: 1.7815 with
+95%CI [0.69415 0.95916] HR of size20-50 vs size\<=20: 0.8650 with 95%CI
+[0.78503 0.95308] HR of size\>50 vs size\<=20: 0.9678 with 95%CI
+[0.79736 1.17457] HR of size\>50 vs size20-50:
+exp(Beta(size\>50)-Beta(size20-50))={exp(fit_ph4$coefficients['as.factor(size)>50'])/exp(fit_ph4$coefficients['as.factor(size)20-50'])}=1.118818
+with 95%CI [??] HR of age i vs age i-1: 1.0075 with 95%CI [1.00110
+1.01387] HR of grade 3 vs grade 2: 1.0575 with 95%CI [0.95655 1.16910]
+HR of recur vs non-recur: 0.0131 with 95%CI [0.01043 0.01646] HR of
+rtime i vs rtime i-1: 0.9985 with 95%CI [0.99841 0.99854]
 
 ```{r}
 #Test for assumption of constant HR 
 test<-cox.zph(fit_ph4)
 test
-plot(x)
-
 ```
-We run a statistical test based on Schoenfeld residuals for proportional hazard assumption for each covariate included in the cox fit. From the output, one can see that test is statistically significant for some covariates like size,grade, rtime and recur and so is the global test. So we can state that proportional hazard assumption is violated since there is significant dependency between Schoenfeld residuals and time.
 
-##next step Q: should we also check outliers and nonlinearity between log hazard and covariates??
+We run a statistical test based on Schoenfeld residuals for proportional
+hazard assumption for each covariate included in the cox fit. From the
+output, one can see that test is statistically significant for some
+covariates like size,grade, rtime and recur and so is the global test.
+So we can state that proportional hazard assumption is violated since
+there is significant dependency between Schoenfeld residuals and time.
 
+##next step Q: should we also check outliers and nonlinearity between
+log hazard and covariates??
 
 \subsection {Parametric Regression Models}
 
@@ -387,18 +511,15 @@ We run a statistical test based on Schoenfeld residuals for proportional hazard 
 library(KMsurv)
 library(survival)
 
-logn = survreg(Surv(dtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="lognormal")
-weib = survreg(Surv(dtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="weibull")
-expon = survreg(Surv(dtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="exponential")
-loglogist = survreg(Surv(dtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="loglogistic")
+logn = survreg(Surv(rtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="lognormal")
+weib = survreg(Surv(rtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="weibull")
+expon = survreg(Surv(rtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="exponential")
+loglogist = survreg(Surv(rtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="loglogistic")
 AIC = c(extractAIC(logn)[2], extractAIC(weib)[2], extractAIC(expon)[2], extractAIC(loglogist)[2])
 names(AIC) = c( "log(normal)", "weibull", "exponential", "log(logistic)")
 AIC
 
 ```
-
-
-
 
 ```{r}
 # How do we do a linear model? Is this a PH model?
@@ -406,28 +527,28 @@ weib$coefficients
 
 ```
 
-
 ```{r}
 confint(weib)
 ```
+
 ```{r}
 betaHat <- -coef(weib) / weib$scale
 betaHat
 ```
+
 ```{r}
-fitCox <- coxph(Surv(dtime, censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data)
+fitCox <- coxph(Surv(rtime, censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data)
 coef(fitCox)
 ```
 
-
-
 # Next Steps for Aleks
 
-* Keep researching to decide which test is appropriate for survival curves diff testing
-* Format text
-* Make all ugly R outputs into nice, coherent tables
+-   Keep researching to decide which test is appropriate for survival
+    curves diff testing
+-   Format text
+-   Make all ugly R outputs into nice, coherent tables
 
 # References
 
-<div id="refs"></div>
-
+::: {#refs}
+:::
