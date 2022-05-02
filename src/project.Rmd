@@ -378,43 +378,64 @@ survdiff(Surv(dtime, censored) ~ chemo, data = data, rho = 1)
 Using the Peto \& Peto test, we reject the null hypothesis. Hence, it is concluded that there is statistically significant difference in survival curves between patients who have gone through chemotherapy, and those who have not.
 
 \subsection {Semi Parametric PH models}
+For Semi Parametric Proportional Hazards Model, We proceed as follows:
+
+The variable size is a categorical variable with 3 levels so we recode the levels 20-50 and >50 as binary variables and take the level <=20 as reference level.
+We then estimate the full model only excluding rtime and recur variables since they are not the chosen event of interest.
+
 
 ```{r}
 library(KMsurv)
 library(MASS)
 ##fitting full model
-fit_ph1<-coxph(Surv(dtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
-               +pgr+er+rtime+recur, data=data)
+fit_ph1<-coxph(Surv(dtime,death)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes +pgr+er, data=data)
 
 ##Backward variable selection based on p-value
 anova(fit_ph1)
-fit_ph2<-coxph(Surv(dtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
-               +pgr+rtime+recur, data=data)
+fit_ph2<-coxph(Surv(dtime,death)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes +pgr, data=data)
 anova(fit_ph2)
-fit_ph3<-coxph(Surv(dtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
-               +rtime+recur, data=data)
+fit_ph3<-coxph(Surv(dtime,death)~meno+hormon+as.factor(size)+age+as.factor(grade)+nodes +pgr, data=data,ties = "efron")
 anova(fit_ph3)
-fit_ph4<-coxph(Surv(dtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)
-               +rtime+recur, data=data)
-anova(fit_ph4)
-summary(fit_ph4)
-#all variables in fit_ph4 is significant
+#all variables in fit_ph3 is significant
 #variable selection based on AIC
 stepAIC(fit_ph1,direction="both")
 
-#chosen model: Surv(dtime, censored) ~ meno + hormon + as.factor(size) + age + 
-# nodes + pgr + er + rtime + recur
+#chosen model:Surv(dtime, death) ~ as.factor(size) + age + 
+   # as.factor(grade) + nodes + pgr
 
-fit_ph_final= coxph(formula = Surv(dtime, censored) ~ meno + hormon + as.factor(size) + 
-    age + nodes + pgr + er + rtime + recur, data = data)
+fit_ph_aic= coxph(formula = Surv(dtime, death) ~ as.factor(size) + age + 
+    as.factor(grade) + nodes + pgr , data = data)
+summary(fit_ph_aic)
+
+AIC = c(extractAIC(fit_ph_final)[2], extractAIC(fit_ph3)[2])
+names(AIC) = c("SelectionAIC","Backward Selection" )
+AIC
+###No huge difference in AIC
+fit_ph_final<-fit_ph3
 summary(fit_ph_final)
-## ??? do you think stepwise AIC selection would work better than selection based on p-value?
+```
 
+For model selection with all covariates, we first fit a full model to apply backward selection procedure. By excluding the covariate with the largest p-value in each iteration, we ended up with the model "Surv(dtime,death)~meno+hormon+size+ age+grade+nodes+pgr" where all covariates are significant. Then we also run stepwise AIC selection in both direction and it resulted the model with size, age, 
+grade, nodes, pgr as variables. To decide which criteria should be used to choose the model, we approach from 2 different points. From a logical point of view, the model including hormonal treatment is reasonable since it might have a direct influence on survival time. If we compare AIC of both models, we see that there is no hugh difference (18543 and 18546). So we decide to go with the model selected based on p-value since it includes hormon in exchange of acceptable increase in AIC.
+
+
+```{r}
 ##CI for HR of size>50 vs size20-50
-covmat<-vcov(fit_ph4)
-covmat
-#exp(fit_ph4$coefficients['as.factor(size)>50']-fit_ph4$coefficients['as.factor(size)20-50'] #+qnorm(0,025)*sqrt(covmat['as.factor(size)>50','as.factor(size)>50']))
+covmat<-vcov(fit_ph_final)
+e<-exp(fit_ph_final$coefficients['as.factor(size)>50'])/exp(fit_ph_final$coefficients['as.factor(size)20-50'])
+ub<-exp(fit_ph_final$coefficients['as.factor(size)>50']-fit_ph_final$coefficients['as.factor(size)20-50'] -qnorm(0.025)*sqrt(covmat['as.factor(size)>50','as.factor(size)>50']+covmat['as.factor(size)20-50','as.factor(size)20-50']-2*covmat['as.factor(size)20-50','as.factor(size)>50']))
+lb<-exp(fit_ph_final$coefficients['as.factor(size)>50']-fit_ph_final$coefficients['as.factor(size)20-50'] +qnorm(0.025)*sqrt(covmat['as.factor(size)>50','as.factor(size)>50']+covmat['as.factor(size)20-50','as.factor(size)20-50']-2*covmat['as.factor(size)20-50','as.factor(size)>50']))
+ci<-c(e,lb,ub)
+names(ci)<-c("est","lb","ub")
+ci
 ###QUESTION: Do we have tied observations??
+fit.ph.table <- summary(fit_ph_final)$conf[,c(1,3,4)]
+fit.ph.table<-rbind(fit.ph.table,ci)
+row.names(fit.ph.table)[9]<-"size>50 vs size20-50"
+colnames(fit.ph.table)<-c("HR","95% CI Lower Bound","95% CI Upper Bound")
+kable(fit.ph.table, 
+      caption = "Relative Risks and CI for each covariate") %>%
+kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
 Estimation and CI of relative risks for every pair of levels of the categorical variables are as below:
 HR of chemo vs non-chemo: 1.0423 with 95%CI [0.91353   1.18914]
