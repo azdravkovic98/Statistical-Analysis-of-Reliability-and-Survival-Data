@@ -152,17 +152,8 @@ and the categorical variable.
 
 \subsubsection{Size}
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 fit.size <- survfit(Surv(dtime, as.numeric(death)) ~ size, data = data)
-
-d <- data.frame(time = fit.size$time,
-                n.risk = fit.size$n.risk,
-                n.event = fit.size$n.event,
-                n.censor = fit.size$n.censor,
-                surv = fit.size$surv,
-                upper = fit.size$upper,
-                lower = fit.size$lower)
-head(d)
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -177,24 +168,6 @@ ggsurvplot(fit.size,
            ggtheme = theme_bw(), # Change ggplot2 theme
            palette = c("#E7B800", "#2E9FDF", "maroon2"), 
            data = data)
-```
-
-```{r message=FALSE, warning=FALSE}
-ggsurvplot(fit.size,                     # survfit object with calculated statistics.
-           pval = TRUE,             # show p-value of log-rank test.
-           conf.int = TRUE,         # show confidence intervals for point estimates of survival curves.
-           conf.int.style = "step",  # customize style of confidence intervals
-           xlab = "Time in days",   # customize X axis label.
-           break.time.by = 1500,     # break X axis in time intervals by ...
-           ggtheme = theme_light(), # customize plot and risk table with a theme.
-           risk.table = "abs_pct",  # absolute number and percentage at risk.
-           risk.table.y.text.col = T,# color risk table text annotations.
-           risk.table.y.text = FALSE,# show bars instead of names in text annotations in legend of risk table.
-           ncensor.plot = TRUE,      # plot the number of censored subjects at time t
-           surv.median.line = "hv",  # add the median survival pointer.
-           palette = c("#E7B800", "#2E9FDF", "maroon2"), # custom color palettes.
-           data = data,
-           xlim = c(0, 4500))
 ```
 
 The horizontal axis represents time in days, and the vertical axis shows
