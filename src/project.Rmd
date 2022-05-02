@@ -85,18 +85,23 @@ dataset.
 
 When we investigate the categorical variables, we see that some have a larger difference between time until recurrence than others.  When we first investigate menopause, we see that recurring patients are very similar in their recurrence time.  However, non-recurring patients have a slightly lower median with a similar distribution.  A very similar pattern is observed for chemotherapy but the non-recurring patients had a slightly higher time before leaving the study.  While size, having three levels, needs to be interpreted slightly differently.  With patients that relapsed into cancer, the larger cancer cells certainly caused it to happen sooner.  This makes intuitive sense that more severe cancer would have more long term health risks.  Among patients that do not relapse, only the extremely large cancer patients had a much lower recurrence time.  While small and medium patients had a very similar response.  Grade had a very similar response among relapsing and non-relapsing patients.  Patients given hormonal therapy seem to have a smaller tail among relapsing patients, meaning those who relapse are more likely to do it soon after treatment.  Non-relapsing patients that had hormonal therapy also appear to be censored more quickly than those who do not receive the treatment.
 
-```{r boxPlots, include=TRUE, message = FALSE}
+```{r boxPlots, include=TRUE, message = FALSE, fig.show = "hold", out.width = "50%"}
 library(ggplot2)
 menoBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=meno,colour=meno)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
-menoBox
+
 chemoBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=chemo,colour=chemo)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
-chemoBox
+
 sizeBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=size,colour=size)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black","black"))
-sizeBox
+
 gradeBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=grade,colour=grade)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
-gradeBox
+
 hormonBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=hormon,colour=hormon)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
-hormonBox
+
+plot(menoBox)
+plot(chemoBox)
+plot(sizeBox)
+plot(gradeBox)
+plot(hormonBox)
 ```
 
 
@@ -105,7 +110,7 @@ Among continuous variables, we first investigated age.  We plotted a both the lo
 
 
 
-```{r scatterPlots, include=TRUE, message=FALSE}
+```{r scatterPlots, include=TRUE, message=FALSE, warning=FALSE, fig.show = "hold", out.width = "50%"}
 
 # Basic age
 ggplot(data, aes(x = age, y = dtime, color = death)) +
@@ -381,7 +386,6 @@ names(quantile.size.table)[7] <- "$\\hat{q_3}$"
 names(quantile.size.table)[8] <- "5\\%"
 names(quantile.size.table)[9] <- "95\\%"
 
-quantile.size.table[is.na(quantile.size.table)] <- "$\\textit{NA}$"
 ```
 
 ```{r quantiles-meno, echo=FALSE, message=FALSE, warning=FALSE}
@@ -421,7 +425,7 @@ names(quantile.meno.table)[7] <- "$\\hat{q_3}$"
 names(quantile.meno.table)[8] <- "5\\%"
 names(quantile.meno.table)[9] <- "95\\%"
 
-quantile.meno.table[is.na(quantile.meno.table)] <- "$\\textit{NA}$"
+
 ```
 
 
@@ -462,7 +466,7 @@ names(quantile.hormon.table)[7] <- "$\\hat{q_3}$"
 names(quantile.hormon.table)[8] <- "5\\%"
 names(quantile.hormon.table)[9] <- "95\\%"
 
-quantile.hormon.table[is.na(quantile.hormon.table)] <- "$\\textit{NA}$"
+
 ```
 
 
@@ -504,14 +508,18 @@ names(quantile.chemo.table)[8] <- "5\\%"
 names(quantile.chemo.table)[9] <- "95\\%"
 
 
-quantile.chemo.table[is.na(quantile.chemo.table)] <- "$\\textit{NA}$"
-
 table <- rbind(quantile.size.table,
                quantile.chemo.table,
                quantile.meno.table,
                quantile.hormon.table)
+table <- round(table)
+quantile.chemo.table[is.na(quantile.chemo.table)] <- "$\\textit{NA}$"
+quantile.size.table[is.na(quantile.size.table)] <- "$\\textit{NA}$"
+quantile.hormon.table[is.na(quantile.hormon.table)] <- "$\\textit{NA}$"
+quantile.meno.table[is.na(quantile.meno.table)] <- "$\\textit{NA}$"
+table[is.na(table)] <- "$\\textit{NA}$"
 
-kbl(table, 
+kbl(table,
     escape = FALSE, booktabs = T,
     caption = "Estimates and confidence intervals for 3 quartiles for each level of covariates $\\textit{size, chemo, meno, hormon}$.") %>%
   kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
@@ -720,19 +728,17 @@ rtime i vs rtime i-1: 0.9985 with 95%CI [0.99841 0.99854]
 
 ```{r}
 #Test for assumption of constant HR 
-test<-cox.zph(fit_ph_final)
-test
+test <- cox.zph(fit_ph_final)$table
+kbl(test, booktabs = T, caption = "Proportional Hazard Test") %>%
+  kable_styling(latex_options = c("striped", "hold_position"))
 ```
 
 We run a statistical test based on Schoenfeld residuals for proportional
 hazard assumption for each covariate included in the cox fit. From the
 output, one can see that test is statistically significant for some
-covariates like size,grade, rtime and recur and so is the global test.
+covariates like age, pgr, and meno with nodes and grade being a borderline case.  The global test is also significant.
 So we can state that proportional hazard assumption is violated since
 there is significant dependency between Schoenfeld residuals and time.
-
-##next step Q: should we also check outliers and nonlinearity between
-log hazard and covariates??
 
 \subsection {Parametric Regression Models}
 
@@ -746,11 +752,12 @@ loglogist = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(s
 
 AIC = c(extractAIC(logn)[2], extractAIC(weib)[2], extractAIC(expon)[2], extractAIC(loglogist)[2])
 names(AIC) = c("log(normal)", "weibull", "exponential", "log(logistic)")
+AIC <- as.data.frame(AIC)
 
-# MAKE TABELLLELELLELELELE
-AIC 
+kbl(AIC, booktabs = T, caption = "Parametric Model Evaluation") %>%
+  kable_styling(latex_options = c("striped", "hold_position")) 
 
-log.normal <- AIC["log(normal)"][1]
+log.normal <- AIC["log(normal)",1]
 ```
 
 We first evaluate parametric models based on variables already selected in the previous section.  Here we are comparing log (normal), weibull, exponential, and log (logistic) distributions.  This is done by using AIC and identifying if the additional parameters are worth it.  What we see is that the log(normal) distribution has the best AIC at `r log.normal`.  It should be noted that these AIC values can not be directly compared to the semi-parametric values.  We have calculated the linear coefficient predictions to be the negative of the log(normal) coefficients.
@@ -763,16 +770,19 @@ bestModel <- logn
 tidyModel <- tidy(bestModel, type = 'text')
 tidyModel <- head(tidyModel, nrow(tidyModel)-1)
 linCoeffs <- c(-bestModel$coefficients)
-table <- tidyModel
-table <- cbind(tidyModel, confint(bestModel), linCoeffs)
-table
+tidyModel <- cbind(round(tidyModel[,2:(ncol(tidyModel)-1)], 2), tidyModel[,ncol(tidyModel)])
+table <- cbind(tidyModel, round(confint(bestModel), 2), round(linCoeffs, 2))
+colnames(table)[7] <- "Linear Coefficient"
+
+kbl(table, booktabs = T, caption = "Parametric Model Coefficient Comparison") %>%
+  kable_styling(latex_options = c("striped", "hold_position"))
 ```
 
 
 When we look at our categorical variable, chemo, it is highly significant and the confidence interval confirms this as it does not contain 0.
 
 
-# References
+<!-- # References -->
 
-::: {#refs}
-:::
+<!-- ::: {#refs} -->
+<!-- ::: -->

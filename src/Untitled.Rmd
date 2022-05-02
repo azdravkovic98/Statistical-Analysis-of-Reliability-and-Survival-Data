@@ -1,0 +1,28 @@
+---
+documentclass: article
+output:
+  pdf_document:
+    toc: no
+  bookdown::pdf_document2:
+    latex_engine: xelatex
+    includes:
+      in_header: preamble.sty
+      before_body: titlepage.sty
+    toc: no
+bibliography: bibliography.bib
+link-citations: yes
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+options(knitr.kable.NA = '')
+knitr::opts_chunk$set(echo = FALSE, fig.pos = "!H", out.extra = "")
+```
+
+\section{Exploratory Data Analysis}
+
+These data sets are used in the paper by Royston and Altman that is
+referenced below. The Rotterdam data is used to create a fitted model,
+
