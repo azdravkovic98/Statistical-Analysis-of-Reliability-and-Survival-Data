@@ -47,7 +47,6 @@ manual review. How best to address this is an open issue.
 ```{r message=FALSE, warning=FALSE}
 library(survival)
 data <- rotterdam
-data$censored <- ifelse(data$recur == 0 | (data$recur == 1 & data$death == 0), TRUE, FALSE)
 ```
 
 ```{r data-desc, echo=FALSE, message=FALSE, warning=FALSE, fig.pos="H"}
@@ -89,7 +88,7 @@ and the categorical variable.
 \subsubsection{Size}
 
 ```{r message=FALSE, warning=FALSE}
-fit.size <- survfit(Surv(rtime, censored) ~ size, data = data)
+fit.size <- survfit(Surv(dtime, as.numeric(death)) ~ size, data = data)
 
 d <- data.frame(time = fit.size$time,
                 n.risk = fit.size$n.risk,
@@ -158,7 +157,7 @@ From Table \@ref(tab:median-size) can be seen that the median survival for Size 
 \subsubsection{Menopause}
 
 ```{r message=FALSE, warning=FALSE}
-fit.meno <- survfit(Surv(rtime, censored) ~ meno, data = data)
+fit.meno <- survfit(Surv(dtime, as.numeric(death)) ~ meno, data = data)
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -201,7 +200,7 @@ menopause. However, to evaluate whether this difference is statistically signifi
 \subsubsection{Hormonal Treatment}
 
 ```{r message=FALSE, warning=FALSE}
-fit.hormon <- survfit(Surv(rtime, censored) ~ hormon, data = data)
+fit.hormon <- survfit(Surv(dtime, as.numeric(death)) ~ hormon, data = data)
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -236,12 +235,12 @@ postmenopausal patients.
 
 From Table \@ref(tab:median-hormon) can be seen that the median survival is `r fit.hormon.table[,'median'][1]` for patients that went through hormonal therapy, and `r fit.hormon.table[,'median'][2]` for those who did not, suggesting slightly worse survival for patients that have gone through the hormonal therapy. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
 
-
 \subsubsection{Chemotherapy}
 
 ```{r message=FALSE, warning=FALSE}
-fit.chemo <- survfit(Surv(rtime, censored) ~ chemo, type="kaplan-meier", data = data)
+fit.chemo <- survfit(Surv(dtime, as.numeric(death)) ~ chemo, type="kaplan-meier", data = data)
 ```
+
 
 ```{r message=FALSE, warning=FALSE}
 ggsurvplot(fit.chemo,
@@ -275,37 +274,198 @@ postmenopausal patients.
 
 From Table \@ref(tab:median-chemo) can be seen that the median survival is `r fit.hormon.table[,'median'][1]` for patients that went through hormonal therapy, and `r fit.hormon.table[,'median'][2]` for those who did not, suggesting slightly better survival for patients that have gone through chemotherapy. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
 
+
 \subsection{Confidence Intervals and Estimators by Levels of ...}
+
 
 (b) For each level obtain an appropriate estimator and confidence
     interval for the 3 quartiles of the survival curves. Interpret the
     results.
 
-\subsubsection{Size}
+```{r quantiles-size, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
 
-```{r}
-quantile(fit.size, conf.int = TRUE)
+quantile.size <- quantile(fit.size, conf.int = TRUE)$quantile
+quantile.size.lower <- quantile(fit.size, conf.int = TRUE)$lower
+quantile.size.upper <- quantile(fit.size, conf.int = TRUE)$upper
+
+quantile25 <- quantile.size[, "25"]
+quantile25.lower <- quantile.size.lower[, "25"]
+quantile25.upper <- quantile.size.upper[, "25"]
+
+quantile50 <- quantile.size[, "50"]
+quantile50.lower <- quantile.size.lower[, "50"]
+quantile50.upper <- quantile.size.upper[, "50"]
+
+quantile75 <- quantile.size[, "75"]
+quantile75.lower <- quantile.size.lower[, "75"]
+quantile75.upper <- quantile.size.upper[, "75"]
+
+quantile.size.table <- data.frame(quantile25,
+                                  quantile25.lower,
+                                  quantile25.upper,
+                                  quantile50,
+                                  quantile50.lower,
+                                  quantile50.upper,
+                                  quantile75,
+                                  quantile75.lower,
+                                  quantile75.upper)
+rownames(quantile.size.table) <- c("Size ($\\leq$50)" ,"Size (20$-$50)", "Size ($>$50)")
+names(quantile.size.table)[1] <- "$\\hat{q_1}$"
+names(quantile.size.table)[2] <- "5\\%"
+names(quantile.size.table)[3] <- "95\\%"
+names(quantile.size.table)[4] <- "$\\hat{q_2}$"
+names(quantile.size.table)[5] <- "5\\%"
+names(quantile.size.table)[6] <- "95\\%"
+names(quantile.size.table)[7] <- "$\\hat{q_3}$"
+names(quantile.size.table)[8] <- "5\\%"
+names(quantile.size.table)[9] <- "95\\%"
+
+quantile.size.table[is.na(quantile.size.table)] <- "$\\textit{NA}$"
 ```
 
-\subsubsection{Menopause}
+```{r quantiles-meno, echo=FALSE, message=FALSE, warning=FALSE}
+quantile.meno <- quantile(fit.meno, conf.int = TRUE)$quantile
+quantile.meno.lower <- quantile(fit.meno, conf.int = TRUE)$lower
+quantile.meno.upper <- quantile(fit.meno, conf.int = TRUE)$upper
 
-```{r}
-quantile(fit.meno, conf.int = TRUE)
+quantile25 <- quantile.meno[, "25"]
+quantile25.lower <- quantile.meno.lower[, "25"]
+quantile25.upper <- quantile.meno.upper[, "25"]
+
+quantile50 <- quantile.meno[, "50"]
+quantile50.lower <- quantile.meno.lower[, "50"]
+quantile50.upper <- quantile.meno.upper[, "50"]
+
+quantile75 <- quantile.meno[, "75"]
+quantile75.lower <- quantile.meno.lower[, "75"]
+quantile75.upper <- quantile.meno.upper[, "75"]
+
+quantile.meno.table <- data.frame(quantile25,
+                                  quantile25.lower,
+                                  quantile25.upper,
+                                  quantile50,
+                                  quantile50.lower,
+                                  quantile50.upper,
+                                  quantile75,
+                                  quantile75.lower,
+                                  quantile75.upper)
+rownames(quantile.meno.table) <- c("Meno = 0" ,"Meno = 1")
+names(quantile.meno.table)[1] <- "$\\hat{q_1}$"
+names(quantile.meno.table)[2] <- "5\\%"
+names(quantile.meno.table)[3] <- "95\\%"
+names(quantile.meno.table)[4] <- "$\\hat{q_2}$"
+names(quantile.meno.table)[5] <- "5\\%"
+names(quantile.meno.table)[6] <- "95\\%"
+names(quantile.meno.table)[7] <- "$\\hat{q_3}$"
+names(quantile.meno.table)[8] <- "5\\%"
+names(quantile.meno.table)[9] <- "95\\%"
+
+quantile.meno.table[is.na(quantile.meno.table)] <- "$\\textit{NA}$"
 ```
 
-\subsubsection{Hormonal Treatment}
 
-```{r}
-quantile(fit.hormon, conf.int = TRUE)
+```{r quantiles-hormon, echo=FALSE, message=FALSE, warning=FALSE}
+quantile.hormon <- quantile(fit.hormon, conf.int = TRUE)$quantile
+quantile.hormon.lower <- quantile(fit.hormon, conf.int = TRUE)$lower
+quantile.hormon.upper <- quantile(fit.hormon, conf.int = TRUE)$upper
+
+quantile25 <- quantile.hormon[, "25"]
+quantile25.lower <- quantile.hormon.lower[, "25"]
+quantile25.upper <- quantile.hormon.upper[, "25"]
+
+quantile50 <- quantile.hormon[, "50"]
+quantile50.lower <- quantile.hormon.lower[, "50"]
+quantile50.upper <- quantile.hormon.upper[, "50"]
+
+quantile75 <- quantile.hormon[, "75"]
+quantile75.lower <- quantile.hormon.lower[, "75"]
+quantile75.upper <- quantile.hormon.upper[, "75"]
+
+quantile.hormon.table <- data.frame(quantile25,
+                                  quantile25.lower,
+                                  quantile25.upper,
+                                  quantile50,
+                                  quantile50.lower,
+                                  quantile50.upper,
+                                  quantile75,
+                                  quantile75.lower,
+                                  quantile75.upper)
+rownames(quantile.hormon.table) <- c("Hormon = 0" ,"Hormon = 1")
+names(quantile.hormon.table)[1] <- "$\\hat{q_1}$"
+names(quantile.hormon.table)[2] <- "5\\%"
+names(quantile.hormon.table)[3] <- "95\\%"
+names(quantile.hormon.table)[4] <- "$\\hat{q_2}$"
+names(quantile.hormon.table)[5] <- "5\\%"
+names(quantile.hormon.table)[6] <- "95\\%"
+names(quantile.hormon.table)[7] <- "$\\hat{q_3}$"
+names(quantile.hormon.table)[8] <- "5\\%"
+names(quantile.hormon.table)[9] <- "95\\%"
+
+quantile.hormon.table[is.na(quantile.hormon.table)] <- "$\\textit{NA}$"
 ```
 
-\subsubsection{Chemotherapy}
 
-```{r}
-quantile(fit.chemo, conf.int = TRUE)
+```{r quantiles-chemo, echo=FALSE, message=FALSE, warning=FALSE, fig.pos="H"}
+quantile.chemo <- quantile(fit.chemo, conf.int = TRUE)$quantile
+quantile.chemo.lower <- quantile(fit.chemo, conf.int = TRUE)$lower
+quantile.chemo.upper <- quantile(fit.chemo, conf.int = TRUE)$upper
+
+quantile25 <- quantile.chemo[, "25"]
+quantile25.lower <- quantile.chemo.lower[, "25"]
+quantile25.upper <- quantile.chemo.upper[, "25"]
+
+quantile50 <- quantile.chemo[, "50"]
+quantile50.lower <- quantile.chemo.lower[, "50"]
+quantile50.upper <- quantile.chemo.upper[, "50"]
+
+quantile75 <- quantile.chemo[, "75"]
+quantile75.lower <- quantile.chemo.lower[, "75"]
+quantile75.upper <- quantile.chemo.upper[, "75"]
+
+quantile.chemo.table <- data.frame(quantile25,
+                                  quantile25.lower,
+                                  quantile25.upper,
+                                  quantile50,
+                                  quantile50.lower,
+                                  quantile50.upper,
+                                  quantile75,
+                                  quantile75.lower,
+                                  quantile75.upper)
+rownames(quantile.chemo.table) <- c("Chemo = 0" ,"Chemo = 1")
+names(quantile.chemo.table)[1] <- "$\\hat{q_1}$"
+names(quantile.chemo.table)[2] <- "5\\%"
+names(quantile.chemo.table)[3] <- "95\\%"
+names(quantile.chemo.table)[4] <- "$\\hat{q_2}$"
+names(quantile.chemo.table)[5] <- "5\\%"
+names(quantile.chemo.table)[6] <- "95\\%"
+names(quantile.chemo.table)[7] <- "$\\hat{q_3}$"
+names(quantile.chemo.table)[8] <- "5\\%"
+names(quantile.chemo.table)[9] <- "95\\%"
+
+
+quantile.chemo.table[is.na(quantile.chemo.table)] <- "$\\textit{NA}$"
+
+table <- rbind(quantile.size.table,
+               quantile.chemo.table,
+               quantile.meno.table,
+               quantile.hormon.table)
+
+kbl(table, 
+    escape = FALSE, booktabs = T,
+    caption = "Estimates and confidence intervals for 3 quartiles for each level of covariates $\\textit{size, chemo, meno, hormon}$.") %>%
+  kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
 ```
+
+
+
+
+
+
+
 
 \subsection{Test of Differences Between the Survival Curves}
+
 
 (c) Conduct a single test of differences between the survival curves.
     Justify your choice of test.
@@ -345,71 +505,73 @@ effect of a treatment/marketing campaign on survival is strongest in the
 earlier phases of administration/contacto and tends to be less effective
 over time. [@short-couse-SA]
 
-```{r}
-# with more than 2 groups
-survdiff(Surv(rtime, censored) ~ size, data = data)
+```{r stratify, echo=FALSE, message=FALSE, warning=FALSE}
+# Stratification by size
+stratify.size <- survdiff(Surv(dtime, as.numeric(death)) ~ meno + strata(size), 
+                          data = data)
+
+chisq.size <- stratify.size$chisq
+df.size <- length(stratify.size$n) - 1
+p.size <- 1 - pchisq(stratify.size$chisq, 
+                     length(stratify.size$n) - 1)
+by.size <- c(round(chisq.size, 2), round(df.size), p.size)
+
+# Stratification by age
+stratify.age <- survdiff(Surv(dtime, as.numeric(death)) ~ meno + strata(age), 
+                          data = data)
+
+chisq.age <- stratify.age$chisq
+df.age <- length(stratify.age$n) - 1
+p.age <- 1 - pchisq(stratify.age$chisq, 
+                    length(stratify.age$n) - 1)
+by.age <- c(round(chisq.age, 2), round(df.age), p.age)
+
+
+# Stratification by hormon
+stratify.hormon <- 
+  survdiff(Surv(dtime, as.numeric(death)) ~ meno + strata(hormon), 
+           data = data)
+
+chisq.hormon <- stratify.hormon$chisq
+df.hormon <- length(stratify.hormon$n) - 1
+p.hormon <- 1 - pchisq(stratify.hormon$chisq, 
+                       length(stratify.hormon$n) - 1)
+by.hormon <- c(round(chisq.hormon, 2), round(df.hormon), p.hormon)
+
+table <- rbind(by.age, by.size, by.hormon)
+rownames(table) <- c("Stratified by Age", 
+                     "Stratified by Size", 
+                     "Stratified by Hormon")
+colnames(table) <- c("$\\chi^2$", "df", "p-value")
+
+kbl(table, 
+    escape = FALSE, booktabs = T,
+    caption = "Stratified log-rank test for differences in menopause.") %>%
+  kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
+
 ```
 
-We fail to reject the null hypothesis, hence we do not have evidence to
-indicate that the three survival curves are different.
-
-\subsubsection{Log-rank Test}
-
-```{r}
-survdiff(Surv(rtime, censored) ~ meno, data = data, rho = 0) # log-rank
+```{r message=FALSE, warning=FALSE, include=FALSE}
+stratify.size.fit <- survfit(Surv(dtime, as.numeric(death)) ~ meno + strata(size), 
+                             data = data,
+                             type="kaplan-meier", 
+                             conf.type="log-log")
 ```
 
-Using the log-rank test, we reject the null hypothesis. Hence, it is
-concluded that there is statistically significant difference in survival
-curves between patients who have gone through menopause, and those who
-have not.
 
-```{r}
-survdiff(Surv(rtime, censored) ~ hormon, data = data, rho = 0) # log-rank
+```{r stratify-size-plot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap = "Independent variable meno stratified by size of the tumor.", fig.pos="H"}
+ggsurvplot(stratify.size.fit,       # survfit object with calculated statistics.
+           pval = TRUE,             # show p-value of log-rank test.
+           conf.int = TRUE,        # show confidence intervals for point estimates of survival curves.
+           conf.int.style = "step",  # customize style of confidence intervals
+           xlab = "Time in days",   # customize X axis label.
+           break.time.by = 1500,     # break X axis in time intervals by ...
+           ggtheme = theme_light(), # customize plot and risk table with a theme.
+           surv.median.line = "hv",  # add the median survival pointer.
+           #palette = c("#E7B800", "#2E9FDF", "maroon2"), # custom color palettes.
+           data = data,
+           xlim = c(0, 6500))
 ```
-
-Using the log-rank test, we reject the null hypothesis. Hence, it is
-concluded that there is statistically significant difference in survival
-curves between patients who have gone through hormonal therapy, and
-those who have not.
-
-```{r}
-survdiff(Surv(rtime, censored) ~ chemo, data = data, rho = 0) # log-rank
-```
-
-Using the log-rank test, we reject the null hypothesis. Hence, it is
-concluded that there is statistically significant difference in survival
-curves between patients who have gone through chemotherapy, and those
-who have not.
-
-\subsubsection{Peto \& Peto Test}
-
-```{r}
-survdiff(Surv(rtime, censored) ~ meno, data = data, rho = 1) 
-```
-
-Using the Peto & Peto test, we reject the null hypothesis. Hence, it is
-concluded that there is statistically significant difference in survival
-curves between patients who have gone through menopause, and those who
-have not.
-
-```{r}
-survdiff(Surv(rtime, censored) ~ hormon, data = data, rho = 1) 
-```
-
-Using the Peto & Peto test, we reject the null hypothesis. Hence, it is
-concluded that there is statistically significant difference in survival
-curves between patients who have gone through hormonal therapy, and
-those who have not.
-
-```{r}
-survdiff(Surv(rtime, censored) ~ chemo, data = data, rho = 1) 
-```
-
-Using the Peto & Peto test, we reject the null hypothesis. Hence, it is
-concluded that there is statistically significant difference in survival
-curves between patients who have gone through chemotherapy, and those
-who have not.
 
 \section{Modeling}
 
@@ -420,18 +582,18 @@ library(KMsurv)
 library(MASS)
 
 ##fitting full model
-fit_ph1 <- coxph(Surv(rtime, censored) ~ chemo + meno + hormon+as.factor(size)+age+as.factor(grade)+nodes
+fit_ph1 <- coxph(Surv(dtime, as.numeric(death)) ~ chemo + meno + hormon+as.factor(size)+age+as.factor(grade)+nodes
                +pgr+er, data=data)
 
 # ##Backward variable selection based on p-value
 # anova(fit_ph1)
-# fit_ph2<-coxph(Surv(rtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
+# fit_ph2<-coxph(Surv(dtime,as.numeric(death))~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
 #                +pgr+rtime+recur, data=data)
 # anova(fit_ph2)
-# fit_ph3<-coxph(Surv(rtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
+# fit_ph3<-coxph(Surv(dtime,as.numeric(death))~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)+nodes
 #                +rtime+recur, data=data)
 # anova(fit_ph3)
-# fit_ph4<-coxph(Surv(rtime,censored)~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)
+# fit_ph4<-coxph(Surv(dtime,as.numeric(death))~chemo+meno+hormon+as.factor(size)+age+as.factor(grade)
 #                +rtime+recur, data=data)
 # anova(fit_ph4)
 # summary(fit_ph4)
@@ -440,9 +602,9 @@ fit_ph1 <- coxph(Surv(rtime, censored) ~ chemo + meno + hormon+as.factor(size)+a
 #variable selection based on AIC
 #stepAIC <- stepAIC(fit_ph1,direction="both")
 
-#chosen model: Surv(rtime, censored) ~ chemo + meno + hormon + age + as.factor(grade)3 + nodes + pgr
+#chosen model: Surv(dtime, as.numeric(death)) ~ chemo + meno + hormon + age + as.factor(grade)3 + nodes + pgr
 
-fit_ph4 <- coxph(formula = Surv(rtime, censored) ~ chemo + meno + hormon + age + as.factor(grade) + nodes + pgr, data = data)
+fit_ph4 <- coxph(formula = Surv(dtime, as.numeric(death)) ~ chemo + meno + hormon + age + as.factor(grade) + nodes + pgr, data = data)
 summary(fit_ph4)
 ## ??? do you think stepwise AIC selection would work better than selection based on p-value?
 
@@ -511,10 +673,10 @@ log hazard and covariates??
 library(KMsurv)
 library(survival)
 
-logn = survreg(Surv(rtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="lognormal")
-weib = survreg(Surv(rtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="weibull")
-expon = survreg(Surv(rtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="exponential")
-loglogist = survreg(Surv(rtime,censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="loglogistic")
+logn = survreg(Surv(dtime,as.numeric(death)) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="lognormal")
+weib = survreg(Surv(dtime,as.numeric(death)) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="weibull")
+expon = survreg(Surv(dtime,as.numeric(death)) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="exponential")
+loglogist = survreg(Surv(dtime,as.numeric(death)) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data, dist="loglogistic")
 AIC = c(extractAIC(logn)[2], extractAIC(weib)[2], extractAIC(expon)[2], extractAIC(loglogist)[2])
 names(AIC) = c( "log(normal)", "weibull", "exponential", "log(logistic)")
 AIC
@@ -537,7 +699,7 @@ betaHat
 ```
 
 ```{r}
-fitCox <- coxph(Surv(rtime, censored) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data)
+fitCox <- coxph(Surv(dtime, as.numeric(death)) ~ as.factor(chemo) + as.factor(size) + as.factor(grade) + as.factor(hormon) + pgr + er, data=data)
 coef(fitCox)
 ```
 
