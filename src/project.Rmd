@@ -326,16 +326,8 @@ quantile(fit.chemo, conf.int = TRUE)
 
 (c) Conduct a single test of differences between the survival curves. Justify your choice of test.
 
-### I need to rephrase all of this text, because it's been copy-pasted!!! ###
+In this setting we chose to use the log-rank test.  This is because we do not want to weight any observations more heavily than others.  Thus, we W(Y(j)) = 1.  The log-rank test is the most powerful so it is the best choice.  However, this test is only the most powerful when the hazard rates are proportional to each other within populations.  For this reason, we stratify the model to identify its impacts and make sure no assumptions are violated.
 
-Now, the questions that arises is if these two curves are statistically equivalent. For answering it, we can use the log-rank test (Mantel 1966; Peto and Peto 1972). This is the most well-known and widely used method to test the null hypothesis of no difference in survival between two or more independent groups. It is a large-sample chi-square test that is obtained by constructing a two by two contingency table at each distinct event time, and comparing the failure rates between the two groups, conditional on the number at risk in each group. The test compares the entire survival experience between groups and can be thought of as a test of whether the survival curves are identical or not.
-
-When we state that two KM curves are statistically equivalent, we mean that, based on a testing procedure that compares the two curves in some overall sense, we do not have evidence to indicate that the true (population) survival curves are different.
-The null hypothesis of the testing procedure is that there is no overall difference between the two (or k) survival curves. Under this, the log–rank statistic is approximately a chi-square with k−1 degree of freedom. Thus, tables of the chi-square distribution are used to determine the p-value.
-This test is the one with most power to test differences that fit the proportional hazards model - so works well as a set-up for subsequent Cox regression. It gives equal weight to early and late failures.
-
-An alternative test that is often used is the Peto & Peto (Peto and Peto 1972) modification of the Gehan-Wilcoxon test (Gehan 1965). This last one is a variation of the log-rank test statistic and is derived by applying different weights at the f−th failure time. This approach is most sensitive to early differences (or earlier time points) between survival.
-This type of weighting may be used to assess whether the effect of a treatment/marketing campaign on survival is strongest in the earlier phases of administration/contacto and tends to be less effective over time. [@short-couse-SA]
 
 ```{r}
 # with more than 2 groups
@@ -458,7 +450,7 @@ weib = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) 
 expon = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age + as.factor(grade) + nodes + pgr, data=data, dist="exponential")
 loglogist = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age + as.factor(grade) + nodes + pgr, data=data, dist="loglogistic")
 AIC = c(extractAIC(logn)[2], extractAIC(weib)[2], extractAIC(expon)[2], extractAIC(loglogist)[2])
-names(AIC) = c( "log(normal)", "weibull", "exponential", "log(logistic)")
+names(AIC) = c("log(normal)", "weibull", "exponential", "log(logistic)")
 AIC
 
 ```
