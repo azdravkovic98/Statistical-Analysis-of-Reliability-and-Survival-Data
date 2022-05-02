@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.5.2)  2 MAY 2022 18:10
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.5.2)  2 MAY 2022 18:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1168,59 +1168,133 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (c:/Users/azdra/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 ) [1]
+File: project_files/figure-latex/boxPlots-1.pdf Graphic file (type pdf)
+<use project_files/figure-latex/boxPlots-1.pdf>
+File: project_files/figure-latex/boxPlots-2.pdf Graphic file (type pdf)
+<use project_files/figure-latex/boxPlots-2.pdf>
+File: project_files/figure-latex/boxPlots-3.pdf Graphic file (type pdf)
+<use project_files/figure-latex/boxPlots-3.pdf>
+File: project_files/figure-latex/boxPlots-4.pdf Graphic file (type pdf)
+<use project_files/figure-latex/boxPlots-4.pdf>
+File: project_files/figure-latex/boxPlots-5.pdf Graphic file (type pdf)
+<use project_files/figure-latex/boxPlots-5.pdf>
+
+Underfull \hbox (badness 10000) in paragraph at lines 233--238
+[][]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 233--238
+[]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 233--238
+[]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 233--238
+[]
+ []
+
+[2] [3]
+File: project_files/figure-latex/scatterPlots-1.pdf Graphic file (type pdf)
+<use project_files/figure-latex/scatterPlots-1.pdf>
+File: project_files/figure-latex/scatterPlots-2.pdf Graphic file (type pdf)
+<use project_files/figure-latex/scatterPlots-2.pdf>
+File: project_files/figure-latex/scatterPlots-3.pdf Graphic file (type pdf)
+<use project_files/figure-latex/scatterPlots-3.pdf>
+
+Underfull \hbox (badness 10000) in paragraph at lines 241--244
+[][]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 241--244
+[]
+ []
+
+[4] [5]
+File: project_files/figure-latex/scatterPlots-4.pdf Graphic file (type pdf)
+<use project_files/figure-latex/scatterPlots-4.pdf>
+File: project_files/figure-latex/scatterPlots-5.pdf Graphic file (type pdf)
+<use project_files/figure-latex/scatterPlots-5.pdf>
+
+Underfull \hbox (badness 10000) in paragraph at lines 250--252
+[][]
+ []
+
+[6]
 File: project_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/unnamed-chunk-3-1.pdf>
+[7]
 File: project_files/figure-latex/unnamed-chunk-4-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/unnamed-chunk-4-1.pdf>
-[2]
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 8.0pt on input line 274.
+(Font)              scaled to size 8.0pt on input line 296.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 6.0pt on input line 274.
+(Font)              scaled to size 6.0pt on input line 296.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 8.00073pt on input line 274.
+(Font)              scaled to size 8.00073pt on input line 296.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 6.00055pt on input line 274.
+(Font)              scaled to size 6.00055pt on input line 296.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 7.99915pt on input line 274.
+(Font)              scaled to size 7.99915pt on input line 296.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 5.99936pt on input line 274.
+(Font)              scaled to size 5.99936pt on input line 296.
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
 Missing character: There is no ≥ (U+2265) in font [lmroman10-regular]:mapping=tex-text;!
+[8]
 File: project_files/figure-latex/unnamed-chunk-6-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/unnamed-chunk-6-1.pdf>
-[3]
+[9]
 File: project_files/figure-latex/unnamed-chunk-8-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/unnamed-chunk-8-1.pdf>
-[4]
 File: project_files/figure-latex/unnamed-chunk-10-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/unnamed-chunk-10-1.pdf>
-[5]
-Underfull \hbox (badness 1231) in paragraph at lines 402--402
+[10]
+Underfull \hbox (badness 1231) in paragraph at lines 424--424
 []\TU/lmr/m/n/10 Table 6: |[][]Estimates and confidence intervals for 3 quartiles for each level of covariates
  []
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[6]
+
+LaTeX Warning: Reference `boxPlots' on page 11 undefined on input line 445.
+
+[11]
 File: project_files/figure-latex/stratify-size-plot-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/stratify-size-plot-1.pdf>
-[7] [8] [9]
-Underfull \hbox (badness 3701) in paragraph at lines 616--628
+[12]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+Underfull \hbox (badness 3701) in paragraph at lines 552--564
 \TU/lmr/m/n/10 size20-50: exp(Beta(size>50)-Beta(size20-50))={exp(fit_ph4$[][][][][][][][][][][][][][][][][][][][][][][][][][][][][] []
  []
 
-[10] [11] [12] (./project.aux)
+[13] [14] [15] [16] (./project.aux)
+
+LaTeX Warning: There were undefined references.
+
 Package rerunfilecheck Info: File `project.out' has not changed.
-(rerunfilecheck)             Checksum: 926F091C0C7736EABC6D76A2421F1777;2871.
+(rerunfilecheck)             Checksum: D713836F8D114FE3875336FE7B52EFA4;2270.
  ) 
 Here is how much of TeX's memory you used:
- 44037 strings out of 478142
- 1020757 string characters out of 5852109
- 1544576 words of memory out of 5000000
- 63980 multiletter control sequences out of 15000+600000
+ 44133 strings out of 478142
+ 1025154 string characters out of 5852109
+ 1541838 words of memory out of 5000000
+ 64066 multiletter control sequences out of 15000+600000
  474879 words of font info for 79 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 86i,13n,121p,1004b,521s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 86i,13n,121p,1317b,479s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on project.pdf (13 pages).
+Output written on project.pdf (17 pages).
