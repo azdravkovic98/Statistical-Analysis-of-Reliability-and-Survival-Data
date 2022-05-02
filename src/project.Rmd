@@ -26,6 +26,7 @@ There are 43 subjects who have died without recurrence, but whose death time is 
 library(survival)
 data <- rotterdam
 data$censored <- ifelse(data$recur == 0 | (data$recur == 1 & data$death == 0), TRUE, FALSE)
+data$death <- as.factor(data$death)
 data$meno <- as.factor(data$meno)
 data$size <- as.factor(data$size)
 data$grade <- as.factor(data$grade)
@@ -62,15 +63,16 @@ Table \@ref(tab:data-desc) explains the covariates in the Rotterdam dataset.
 When we investigate the categorical variables, we see that some have a larger difference between time until recurrence than others.  When we first investigate menopause, we see that recurring patients are very similar in their recurrence time.  However, non-recurring patients have a slightly lower median with a similar distribution.  A very similar pattern is observed for chemotherapy but the non-recurring patients had a slightly higher time before leaving the study.  While size, having three levels, needs to be interpreted slightly differently.  With patients that relapsed into cancer, the larger cancer cells certainly caused it to happen sooner.  This makes intuitive sense that more severe cancer would have more long term health risks.  Among patients that do not relapse, only the extremely large cancer patients had a much lower recurrence time.  While small and medium patients had a very similar response.  Grade had a very similar response among relapsing and non-relapsing patients.  Patients given hormonal therapy seem to have a smaller tail among relapsing patients, meaning those who relapse are more likely to do it soon after treatment.  Non-relapsing patients that had hormonal therapy also appear to be censored more quickly than those who do not receive the treatment.
 
 ```{r boxPlots, include=TRUE, message = FALSE}
-menoBox <- ggplot(data, aes(x = recur, y = rtime, fill=recur, linetype=meno,colour=meno)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
+library(ggplot2)
+menoBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=meno,colour=meno)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
 menoBox
-chemoBox <- ggplot(data, aes(x = recur, y = rtime, fill=recur, linetype=chemo,colour=chemo)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
+chemoBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=chemo,colour=chemo)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
 chemoBox
-sizeBox <- ggplot(data, aes(x = recur, y = rtime, fill=recur, linetype=size,colour=size)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black","black"))
+sizeBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=size,colour=size)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black","black"))
 sizeBox
-gradeBox <- ggplot(data, aes(x = recur, y = rtime, fill=recur, linetype=grade,colour=grade)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
+gradeBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=grade,colour=grade)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
 gradeBox
-hormonBox <- ggplot(data, aes(x = recur, y = rtime, fill=recur, linetype=hormon,colour=hormon)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
+hormonBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=hormon,colour=hormon)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
 hormonBox
 ```
 
@@ -83,26 +85,26 @@ Among continuous variables, we first investigated age.  We plotted a both the lo
 ```{r scatterPlots, include=TRUE, message=FALSE}
 
 # Basic age
-ggplot(data, aes(x = age, y = rtime, color = censored)) +
+ggplot(data, aes(x = age, y = dtime, color = death)) +
   geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
   geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
 
 # log(age)
-ggplot(data, aes(x = log(age), y = rtime, color = censored)) +
+ggplot(data, aes(x = log(age), y = dtime, color = death)) +
   geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
   geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
 
 # er
-ggplot(data, aes(x = er, y = rtime, color = censored)) +
+ggplot(data, aes(x = er, y = dtime, color = death)) +
   geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
   geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
 
 # log(er)
-ggplot(data, aes(x = log(er), y = rtime, color = censored)) +
+ggplot(data, aes(x = log(er), y = dtime, color = death)) +
   geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
   geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
 
-ggplot(data, aes(x = pgr, y = rtime, color = censored)) +
+ggplot(data, aes(x = pgr, y = dtime, color = death)) +
   geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
   geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
 
@@ -287,12 +289,16 @@ From Table \@ref(tab:median-hormon) can be seen that the median survival is 3407
 
 \subsubsection{Size}
 
-```{r}
+We first evaluate size and see similar results to what was observed in the EDA barcharts `r boxPlots`.  We see that at the 25th percentile, size >50 has a very significant difference from the other two groups.  With this being significantly smaller, their dtime is significantly smaller.  This intuitively makes sense that a person who has larger cancer would have a worse life expectancy.  However, this phenomenon has faded by the 50th percentile and persists through the 75th.  This means that if a person survives the initial hurdle after surgery, they are not expected to be significantly different from the rest of the population.
+
+```{r sizeQuantile, include=TRUE, message=FALSE}
 quantile(fit, conf.int = TRUE)
 ```
 
 
 \subsubsection{Menopause}
+
+When we investigate the effect of menopause on survival, we see that generally people that are menopausal have lower survival times.  This is supported by that at the 25th, 50th, and 75th percentiles, there is no overlap in the quantiles' confidence intervals.  This means that at all stages, a menopausal person would have a shorter life.  However, this could be due to other covariates such as the fact that all menopausal people are women or that they tend to be older.
 
 ```{r}
 quantile(fit.meno, conf.int = TRUE)
@@ -301,11 +307,15 @@ quantile(fit.meno, conf.int = TRUE)
 
 \subsubsection{Hormonal Treatment}
 
+We next evaluate the effect of hormonal treatment.  We see here that those who received hormonal treatment generally have a lower survival time.  We also see that there is no overlap between the confidence intervals indicating that not only did they have a large difference, but it sustained itself throughout the entire distribution of patients.
+
 ```{r}
 quantile(fit.hormon, conf.int = TRUE)
 ```
 
 \subsubsection{Chemotherapy}
+
+Finally, we evaluate the effect of chemotherapy.  Here we see that generally chemotherapy patients live longer.  However, this only becomes significant at the 75th percentile.  This means that generally patients that receive chemotherapy are not significantly affected until they live for a long time.
 
 ```{r}
 quantile(fit.chemo, conf.int = TRUE)
@@ -443,10 +453,10 @@ We run a statistical test based on Schoenfeld residuals for proportional hazard 
 library(KMsurv)
 library(survival)
 
-logn = survreg(Surv(rtime, censored) ~ chemo + meno + hormon + age + as.factor(grade) + nodes + pgr, data=data, dist="lognormal")
-weib = survreg(Surv(rtime, censored) ~ chemo + meno + hormon + age + as.factor(grade) + nodes + pgr, data=data, dist="weibull")
-expon = survreg(Surv(rtime, censored) ~ chemo + meno + hormon + age + as.factor(grade) + nodes + pgr, data=data, dist="exponential")
-loglogist = survreg(Surv(rtime, censored) ~ chemo + meno + hormon + age + as.factor(grade) + nodes + pgr, data=data, dist="loglogistic")
+logn = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age + as.factor(grade) + nodes + pgr, data=data, dist="lognormal")
+weib = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age + as.factor(grade) + nodes + pgr, data=data, dist="weibull")
+expon = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age + as.factor(grade) + nodes + pgr, data=data, dist="exponential")
+loglogist = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age + as.factor(grade) + nodes + pgr, data=data, dist="loglogistic")
 AIC = c(extractAIC(logn)[2], extractAIC(weib)[2], extractAIC(expon)[2], extractAIC(loglogist)[2])
 names(AIC) = c( "log(normal)", "weibull", "exponential", "log(logistic)")
 AIC
@@ -459,7 +469,7 @@ We first evaluate parametric models based on variables already selected in the p
 # Linear model predictors
 library(broom)
 
-bestModel <- weib
+bestModel <- logn
 tidyModel <- tidy(bestModel, type = 'text')
 tidyModel <- head(tidyModel, nrow(tidyModel)-1)
 linCoeffs <- c(-bestModel$coefficients)
