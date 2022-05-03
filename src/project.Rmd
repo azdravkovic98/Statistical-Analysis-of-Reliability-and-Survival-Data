@@ -83,7 +83,7 @@ Table \@ref(tab:data-desc) explains the covariates in the Rotterdam
 dataset.
 
 
-When we investigate the categorical variables, we see that some have a larger difference between time until recurrence than others.  When we first investigate menopause, we see that recurring patients are very similar in their recurrence time.  However, non-recurring patients have a slightly lower median with a similar distribution.  A very similar pattern is observed for chemotherapy but the non-recurring patients had a slightly higher time before leaving the study.  While size, having three levels, needs to be interpreted slightly differently.  With patients that relapsed into cancer, the larger cancer cells certainly caused it to happen sooner.  This makes intuitive sense that more severe cancer would have more long term health risks.  Among patients that do not relapse, only the extremely large cancer patients had a much lower recurrence time.  While small and medium patients had a very similar response.  Grade had a very similar response among relapsing and non-relapsing patients.  Patients given hormonal therapy seem to have a smaller tail among relapsing patients, meaning those who relapse are more likely to do it soon after treatment.  Non-relapsing patients that had hormonal therapy also appear to be censored more quickly than those who do not receive the treatment.
+When we investigate the categorical variables, we see that some have a larger difference between time until death than others.  When we first investigate menopause, we see that menopausal patients are very similar in their death time.  A very similar pattern is observed for chemotherapy but the patients that did not die had a slightly higher time before leaving the study.  While size, having three levels, needs to be interpreted slightly differently.  With patients that died, the larger cancer cells certainly caused it to happen sooner.  This makes intuitive sense that more severe cancer would have more long term health risks.  Among patients that do not die, only the extremely large cancer patients had a much lower recurrence time.  While small and medium patients had a very similar response.  Grade had a very similar response among all patients with higher grade patients living slightly shorter lives.  Patients given hormonal therapy seem to have a smaller tail among patients that died; meaning those who relapse are more likely to do it soon after treatment.  Surviving patients that had hormonal therapy also appear to be censored more quickly than those who do not receive the treatment.
 
 ```{r boxPlots, include=TRUE, message = FALSE, fig.show = "hold", out.width = "50%"}
 library(ggplot2)
@@ -106,7 +106,7 @@ plot(hormonBox)
 
 
 
-Among continuous variables, we first investigated age.  We plotted a both the lowess curve and the linear model to see if they match.  If so, they most likely have data with a limited skew and do not require transformation for modeling.  We first evaluated age and there was a difference between the linear and lowess curves.  To adjust for this, a log transform was performed and the fit generally improved for most of the data.  Next, we investigated the relationship between er and relapse time.  Here we see a large deviation which was corrected for again with a log transform.  Finally, we evaluated pgr and it had a good fit.
+Among continuous variables, we first investigated age.  We plotted a both the lowess curve and the linear model to see if they match.  If so, they most likely have data with a limited skew and do not require transformation for modeling.  We first evaluated age and there was not a difference between the linear and lowess curves.  Next, we investigated the relationship between er and death time.  Here we see a large deviation which was corrected for again with a log transform.  Finally, we evaluated pgr and it had a good fit overall.
 
 
 
@@ -114,11 +114,6 @@ Among continuous variables, we first investigated age.  We plotted a both the lo
 
 # Basic age
 ggplot(data, aes(x = age, y = dtime, color = death)) +
-  geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
-  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
-
-# log(age)
-ggplot(data, aes(x = log(age), y = dtime, color = death)) +
   geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
   geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
 
@@ -190,7 +185,7 @@ kbl(fit.size.table,
 
 At time zero, the survival probability is 1.0 (or 100% of the participants are alive). At time 2250, the probability of survival is approximately 0.625 for size\>=50, and 0.85 for size\<50. 
 
-From Table \@ref(tab:median-size) can be seen that the median survival for Size \geq 50 is `r fit.size.table[, 'median'][1]`, for Size  20-50 is `r fit.size.table[, 'median'][2]`, and for Size \> 50 is `r fit.size.table[, 'median'][3]`. This suggests slightly worse survival for patients with tumor of larger size. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
+From Table \@ref(tab:median-size) can be seen that the median survival for Size \geq 50 is `r fit.size.table[, 'median'][1]`, for Size  20-50 is `r fit.size.table[, 'median'][2]`, and for Size \> 50 is `r fit.size.table[, 'median'][3]`. This suggests worse survival for patients with tumor of larger size. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
 
 \subsubsection{Menopause}
 
@@ -221,19 +216,15 @@ kbl(fit.meno.table,
   kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
 
-The horizontal axis represents time in days, and the vertical axis shows
-the probability of surviving, or the proportion of people surviving. The
-lines represent survival curves of the three groups. A vertical drop in
-the curves indicates an event. The vertical tick mark on the curves
-means that a patient was censored at this time.
+
 
 At time zero, the survival probability is 1.0 (or 100% of the
 participants are alive). At time 2200, the probability of survival is
-approximately 0.75 for premenopausal patients, and 0.825 for
-postmenopausal patients.
+approximately 0.75 for non-menopausal patients, and 0.825 for
+menopausal patients.
 
-From Table \@ref(tab:median-meno) can be seen that the median survival is `r fit.meno.table[,'median'][1]` for premenopausal patients, and `r fit.meno.table[,'median'][2]` for postmenopausal, suggesting slightly worse survival for patients that have gone through
-menopause. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
+From Table \@ref(tab:median-meno) can be seen that the median survival is `r fit.meno.table[,'median'][1]` for non-menopausal patients, and `r fit.meno.table[,'median'][2]` for menopausal, suggesting worse survival for patients that have gone through
+menopause.
 
 \subsubsection{Hormonal Treatment}
 
@@ -259,12 +250,6 @@ kable(fit.hormon.table,
       caption = "Median survival times for each group.") %>%
 kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
-
-The horizontal axis represents time in days, and the vertical axis shows
-the probability of surviving, or the proportion of people surviving. The
-lines represent survival curves of the three groups. A vertical drop in
-the curves indicates an event. The vertical tick mark on the curves
-means that a patient was censored at this time.
 
 At time zero, the survival probability is 1.0 (or 100% of the
 participants are alive). At time 2200, the probability of survival is
@@ -298,12 +283,6 @@ kable(fit.chemo.table,
       caption = "Median survival times for each group.") %>%
 kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
-
-The horizontal axis represents time in days, and the vertical axis shows
-the probability of surviving, or the proportion of people surviving. The
-lines represent survival curves of the three groups. A vertical drop in
-the curves indicates an event. The vertical tick mark on the curves
-means that a patient was censored at this time.
 
 At time zero, the survival probability is 1.0 (or 100% of the
 participants are alive). At time 2200, the probability of survival is
@@ -498,7 +477,7 @@ kbl(table,
   kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
 ```
 
-We first evaluate size and see similar results to what was observed in the EDA barcharts \@ref(boxPlots). We see that at the 25th percentile, size >50 has a very significant difference from the other two groups.  With this being significantly smaller, their dtime is significantly smaller.  This intuitively makes sense that a person who has larger cancer would have a worse life expectancy.  However, this phenomenon has faded by the 50th percentile and persists through the 75th.  This means that if a person survives the initial hurdle after surgery, they are not expected to be significantly different from the rest of the population.
+We first evaluate size and see similar results to what was observed in the EDA barcharts. We see that at the 25th percentile, size >50 has a very significant difference from the other two groups.  With this being significantly smaller, their dtime is significantly smaller.  This intuitively makes sense that a person who has larger cancer would have a worse life expectancy.  However, this phenomenon has faded by the 50th percentile and persists through the 75th.  This means that if a person survives the initial hurdle after surgery, they are not expected to be significantly different from the rest of the population.
 
 
 When we investigate the effect of menopause on survival, we see that generally people that are menopausal have lower survival times.  This is supported by that at the 25th, 50th, and 75th percentiles, there is no overlap in the quantiles' confidence intervals.  This means that at all stages, a menopausal person would have a shorter life.  However, this could be due to other covariates such as the fact that all menopausal people are women or that they tend to be older.
@@ -587,6 +566,8 @@ ggsurvplot(stratify.size.fit,       # survfit object with calculated statistics.
 
 In this setting we chose to use the log-rank test.  This is because we do not want to weight any observations more heavily than others.  Thus, we W(Y(j)) = 1.  The log-rank test is the most powerful so it is the best choice.  However, this test is only the most powerful when the hazard rates are proportional to each other within populations.  For this reason, we stratify the model to identify its impacts and make sure no assumptions are violated.
 
+What we see when we perform this stratification is a very large difference between someone without menopause and small cancer cells and someone who is menopausal and has very large cancer cells.  We also see that stratifying on age has the best fit.
+
 
 
 \section{Modeling}
@@ -642,7 +623,7 @@ fit_ph_final <- fit_ph3
 ```
 
 For model selection with all covariates, we first fit a full model to apply backward selection procedure. By excluding the covariate with the largest p-value in each iteration, we ended up with the model "Surv(dtime,as.numeric(death))~meno+hormon+size+ age+grade+nodes+pgr" where all covariates are significant. Then we also run stepwise AIC selection in both direction and it resulted the model with size, age, 
-grade, nodes, pgr as variables. To decide which criteria should be used to choose the model, we approach from 2 different points. From a logical point of view, the model including hormonal treatment is reasonable since it might have a direct influence on survival time. If we compare AIC of both models, we see that there is no hugh difference (18543 and 18546). So we decide to go with the model selected based on p-value since it includes hormon in exchange of acceptable increase in AIC.
+grade, nodes, pgr as variables. To decide which criteria should be used to choose the model, we approach from 2 different points. From a logical point of view, the model including hormonal treatment is reasonable since it might have a direct influence on survival time. If we compare AIC of both models, we see that there is no huge difference (18543 and 18546, respectively). So we decide to go with the model selected based on p-value since it includes hormon in exchange of acceptable increase in AIC.
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -733,7 +714,7 @@ kbl(AIC, booktabs = T, caption = "Parametric Model Evaluation") %>%
 log.normal <- AIC["log(normal)",1]
 ```
 
-We first evaluate parametric models based on variables already selected in the previous section.  Here we are comparing log (normal), weibull, exponential, and log (logistic) distributions.  This is done by using AIC and identifying if the additional parameters are worth it.  What we see is that the log(normal) distribution has the best AIC at `r log.normal`.  It should be noted that these AIC values can not be directly compared to the semi-parametric values.  We have calculated the linear coefficient predictions to be the negative of the log(normal) coefficients.
+We first evaluate parametric models based on variables already selected in the previous section.  Here we are comparing log (normal), weibull, exponential, and log (logistic) distributions.  This is done by using AIC and identifying if the additional parameters are worth it.  What we see is that the log(normal) distribution has the best AIC at `r log.normal`.  It should be noted that these AIC values can not be directly compared to the semi-parametric values.  We are able to estimate the linear coefficients to be the negative of the log(normal) coefficients due to the normality of this distribution.  These can be see in Table 12.
 
 ```{r CoefficientComparison}
 # Linear model predictors
@@ -752,7 +733,7 @@ kbl(table, booktabs = T, caption = "Parametric Model Coefficient Comparison") %>
 ```
 
 
-When we look at our categorical variable, chemo, it is highly significant and the confidence interval confirms this as it does not contain 0.
+When we look at our categorical variable, hormon, it is significant and the confidence interval confirms this as it does not contain 0.  However, it should be noted that this is a borderline case.
 
 
 <!-- # References -->
