@@ -47,7 +47,7 @@ manual review. How best to address this is an open issue.
 ```{r message=FALSE, warning=FALSE}
 library(survival)
 data <- rotterdam
-
+library(tidyverse)
 data$death <- as.factor(data$death)
 data$meno <- as.factor(data$meno)
 data$size <- as.factor(data$size)
@@ -83,7 +83,7 @@ Table \@ref(tab:data-desc) explains the covariates in the Rotterdam
 dataset.
 
 
-When we investigate the categorical variables, we see that some have a larger difference between time until death than others.  When we first investigate menopause, we see that menopausal patients are very similar in their death time.  A very similar pattern is observed for chemotherapy but the patients that did not die had a slightly higher time before leaving the study.  While size, having three levels, needs to be interpreted slightly differently.  With patients that died, the larger cancer cells certainly caused it to happen sooner.  This makes intuitive sense that more severe cancer would have more long term health risks.  Among patients that do not die, only the extremely large cancer patients had a much lower recurrence time.  While small and medium patients had a very similar response.  Grade had a very similar response among all patients with higher grade patients living slightly shorter lives.  Patients given hormonal therapy seem to have a smaller tail among patients that died; meaning those who relapse are more likely to do it soon after treatment.  Surviving patients that had hormonal therapy also appear to be censored more quickly than those who do not receive the treatment.
+When we investigate the categorical variables, we see that some have a larger difference between time until death than others.  When we first investigate menopause, we see that menopausal patients are very similar in their death time.  A very similar pattern is observed for chemotherapy but the patients that did not die had a slightly higher time before leaving the study.  While size, having three levels, needs to be interpreted slightly differently.  With patients that died, the larger cancer cells certainly caused it to happen sooner.  This makes intuitive sense that more severe cancer would have more long term health risks.  Among patients that do not die, only the extremely large cancer patients had a much lower death time.  While small and medium patients had a very similar response.  Grade had a very similar response among all patients with higher grade patients living slightly shorter lives.  Patients given hormonal therapy seem to have a smaller tail among patients that died; meaning those who died are more likely to do it soon after treatment.  Surviving patients that had hormonal therapy also appear to be censored more quickly than those who do not receive the treatment.
 
 ```{r boxPlots, include=TRUE, message = FALSE, fig.show = "hold", out.width = "50%"}
 library(ggplot2)
@@ -576,13 +576,18 @@ What we see when we perform this stratification is a very large difference betwe
 \subsection {Semi Parametric PH models}
 For Semi Parametric Proportional Hazards Model, We proceed as follows:
 
-The variable size is a categorical variable with 3 levels so we recode the levels 20-50 and >50 as binary variables and take the level <=20 as reference level.
-We then estimate the full model only excluding rtime and recur variables since they are not the chosen event of interest.
+The variable size is a categorical variable with 3 levels so we recode the levels 20-50 and >50 as binary variables and take the level <=20 as reference level. The same holds for the variable grade which has 2 levels. So the level grade=3 is coded as a new binary variable and grade=2 as reference level.
+
+In the dataset, there are 609 ties between times until death consisting of 1376 subjects in total. Considering the existence of tied observations, Efron approximation for the likelihood function will be implemented while estimating the PH model.
+
+Lastly, rtime and recur variables are excluded from the model since they are not the chosen event of interest. We then estimate the full semi parametric proportional hazard model.
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 library(KMsurv)
 library(MASS)
+###Count of Tied Observations
+data %>% group_by(dtime)%>%summarise(count=n())%>%filter(count>1)%>%summarise(ties=n(),tied_observ=sum(count))
 
 ##fitting full model
 
@@ -590,7 +595,7 @@ fit_ph1 <-
   coxph(
     Surv(dtime, as.numeric(death)) ~ chemo + meno + hormon + as.factor(size) +
       age + as.factor(grade) + nodes + pgr + er,
-    data = data
+    data = data, ties = "efron"
   )
 
 ##Backward variable selection based on p-value
@@ -599,7 +604,7 @@ fit_ph2 <-
   coxph(
     Surv(dtime, as.numeric(death)) ~ chemo + meno + hormon + as.factor(size) +
       age + as.factor(grade) + nodes + pgr,
-    data = data
+    data = data, ties = "efron"
   )
 anova(fit_ph2)
 fit_ph3<-coxph(Surv(dtime,as.numeric(death))~meno+hormon+as.factor(size)+age+as.factor(grade)+nodes +pgr, data=data,ties = "efron")
@@ -613,17 +618,20 @@ anova(fit_ph3)
    # as.factor(grade) + nodes + pgr
 
 fit_ph_aic= coxph(formula = Surv(dtime, as.numeric(death)) ~ as.factor(size) + age + 
-    as.factor(grade) + nodes + pgr , data = data)
+    as.factor(grade) + nodes + pgr , data = data, ties = "efron")
 summary(fit_ph_aic)
 
 AIC = c(extractAIC(fit_ph_aic)[2], extractAIC(fit_ph3)[2])
 names(AIC) = c("SelectionAIC","Backward Selection" )
 ###No huge difference in AIC
 fit_ph_final <- fit_ph3
+fit_ph_final$coefficients
+
 ```
 
-For model selection with all covariates, we first fit a full model to apply backward selection procedure. By excluding the covariate with the largest p-value in each iteration, we ended up with the model "Surv(dtime,as.numeric(death))~meno+hormon+size+ age+grade+nodes+pgr" where all covariates are significant. Then we also run stepwise AIC selection in both direction and it resulted the model with size, age, 
-grade, nodes, pgr as variables. To decide which criteria should be used to choose the model, we approach from 2 different points. From a logical point of view, the model including hormonal treatment is reasonable since it might have a direct influence on survival time. If we compare AIC of both models, we see that there is no huge difference (18543 and 18546, respectively). So we decide to go with the model selected based on p-value since it includes hormon in exchange of acceptable increase in AIC.
+For model selection with all covariates, we first apply backward selection procedure to the fitted full model. By excluding the covariate with the largest p-value based on Chi-Square statistics in each iteration, we ended up with the model "dtime,death~meno+hormon+size+ age+grade+nodes+pgr" where all covariates are statistically significant.
+As an alternative we also run stepwise AIC selection in both direction which selecting the model with the lowest AIC among all possible combinations of models with one more or one less covariate in each iteration. It resulted the model with size, age, 
+grade, nodes, pgr as variables. In order to decide which criteria should be used to choose the model, we approach from 2 different points. From a logical point of view, the model including hormonal treatment seems reasonable since it has an influence on both death time and censoring time of subjects as we explored in the exploratory data analysis part. If we compare AIC of both models, we see that there is no huge difference (18543 and 18546, respectively). So we decide to go with the model selected based on p-value since it includes hormon in exchange of acceptable increase in AIC.
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -639,46 +647,41 @@ names(ci)<-c("est","lb","ub")
 
 fit.ph.table <- summary(fit_ph_final)$conf[,c(1,3,4)]
 fit.ph.table<-rbind(fit.ph.table,ci)
-row.names(fit.ph.table)[9]<-"size>50 vs size20-50"
-colnames(fit.ph.table)<-c("HR","95% CI Lower Bound","95% CI Upper Bound")
-kable(fit.ph.table, 
-      caption = "Relative Risks and CI for each covariate") %>%
+row.names(fit.ph.table)<-c("meno=1", "hormon=1", "size20-50", "size>50", "age i", "grade=3", "nodes i", "pgr i", "size>50")
+reflev<-c("0", "0", "size>=20", "size>=20","age i-1", "grade=2", "nodes i-1", "pgr i-1", "size20-50")
+fit.ph.table1<-cbind(reflev,fit.ph.table)
+colnames(fit.ph.table1)<-c("vs Level","Relative Risks ($exp(\\hat{\\beta})$)","95% CI Lower Bound","95% CI Upper Bound")
+kable(fit.ph.table1, 
+      caption = "Relative Risks and CI for Every Pairs of Levels of Categorical Variables") %>%
 kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
 
-```{r relative-risks-tbl, echo=FALSE, message=FALSE, warning=FALSE}
+```{r relative-risks-tbl, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 relativeRisks.table <- function(model, digits = 3) {
   
   table <- round(summary(model)$conf.int[, -2], digits)
   label <- c("")
   
   # Add row names after the models have been fixed!
-  rownames(table) <- c("Chemo", "Meno", "Hormon", "Size (20-50)", "Size (>50)", 
-                       "Age", "Grade = 3", "Nodes", "Pgr", "Er")
+  rownames(table) <- c( "Meno", "Hormon", "Size (20-50)", "Size (>50)", 
+                       "Age", "Grade = 3", "Nodes", "Pgr")
   colnames(table) <- c("$exp(\\hat{\\beta})$", "5\\%", "95\\%")
 
   table
 }
-
-kbl(relativeRisks.table(fit_ph1), 
-    escape = FALSE, booktabs = T,
-    caption = "Estimators and confidence intervals for relative risks under xxxxx model.") %>%
-  kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
+-
+kbl(relativeRisks.table(fit_ph_final), 
+    escape = FALSE, booktabs = TRUE,
+    caption = "Estimators and confidence intervals for relative risks under x model.") %>% kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
 ```
 
-
 Estimation and CI of relative risks for every pair of levels of the
-categorical variables are as below: HR of chemo vs non-chemo: 1.0423
-with 95%CI [0.91353 1.18914] HR of meno vs non-meno: 0.8160 with 95%CI
-[0.69415 0.95916] HR of hormon treatment vs no treatment: 1.7815 with
-95%CI [0.69415 0.95916] HR of size20-50 vs size\<=20: 0.8650 with 95%CI
-[0.78503 0.95308] HR of size\>50 vs size\<=20: 0.9678 with 95%CI
-[0.79736 1.17457] HR of size\>50 vs size20-50:
-exp(Beta(size\>50)-Beta(size20-50))={exp(fit_ph4$coefficients['as.factor(size)>50'])/exp(fit_ph4$coefficients['as.factor(size)20-50'])}=1.118818
-with 95%CI [??] HR of age i vs age i-1: 1.0075 with 95%CI [1.00110
-1.01387] HR of grade 3 vs grade 2: 1.0575 with 95%CI [0.95655 1.16910]
-HR of recur vs non-recur: 0.0131 with 95%CI [0.01043 0.01646] HR of
-rtime i vs rtime i-1: 0.9985 with 95%CI [0.99841 0.99854]
+categorical variables are calculated and shown in the table above. With the aim of checking constant proportional hazard assumption, we run a statistical test based on Schoenfeld residuals for each covariate included in the fitted model with the null hypothesis of residuals being independent from time. From the output below, one can see that test is statistically highly significant for the covariates pgr and age with nodes and menopause being a borderline case. It shows that relative risks for categorical variables are constant over time while null hypothesis of constant hazard ratio is rejected for continuous variables. 
+
+##The global test is also highly significant and the null hypothesis can be rejected. 
+##So we can conclude that proportional hazard assumption of constant hazard ratio over time is violated since there is significant dependency between Schoenfeld residuals and time.
+**??? Do you agree we should interpret the test outputs excluding cont variables as above since its stated in the project pdf that we are interested in relative risks for categorical variables or should we just look at global test and say that assumption is violated?**
+
 
 ```{r}
 #Test for assumption of constant HR 
@@ -687,12 +690,6 @@ kbl(test, booktabs = T, caption = "Proportional Hazard Test") %>%
   kable_styling(latex_options = c("striped", "hold_position"))
 ```
 
-We run a statistical test based on Schoenfeld residuals for proportional
-hazard assumption for each covariate included in the cox fit. From the
-output, one can see that test is statistically significant for some
-covariates like age, pgr, and meno with nodes and grade being a borderline case.  The global test is also significant.
-So we can state that proportional hazard assumption is violated since
-there is significant dependency between Schoenfeld residuals and time.
 
 \subsection {Parametric Regression Models}
 
