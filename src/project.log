@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.5.2)  3 MAY 2022 22:35
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.5.2)  4 MAY 2022 20:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1207,32 +1207,79 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 File: project_files/figure-latex/stratify-size-plot-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/stratify-size-plot-1.pdf>
 [8] [9]
-Overfull \hbox (5.84865pt too wide) in paragraph at lines 442--465
+LaTeX Font Info:    Calculating math sizes for size <15> on input line 442.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
+(Font)              scaled to size 15.0pt on input line 442.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
+(Font)              scaled to size 10.49995pt on input line 442.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
+(Font)              scaled to size 7.5pt on input line 442.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
+(Font)              scaled to size 15.00137pt on input line 442.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
+(Font)              scaled to size 10.5009pt on input line 442.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
+(Font)              scaled to size 7.50069pt on input line 442.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
+(Font)              scaled to size 14.9984pt on input line 442.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
+(Font)              scaled to size 10.49883pt on input line 442.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
+(Font)              scaled to size 7.49919pt on input line 442.
+
+Overfull \hbox (5.84865pt too wide) in paragraph at lines 464--487
  [][] 
  []
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [10]
-Overfull \hbox (35.61868pt too wide) in paragraph at lines 523--539
+File: project_files/figure-latex/unnamed-chunk-15-1.pdf Graphic file (type pdf)
+<use project_files/figure-latex/unnamed-chunk-15-1.pdf>
+File: project_files/figure-latex/unnamed-chunk-15-2.pdf Graphic file (type pdf)
+<use project_files/figure-latex/unnamed-chunk-15-2.pdf>
+File: project_files/figure-latex/unnamed-chunk-15-3.pdf Graphic file (type pdf)
+<use project_files/figure-latex/unnamed-chunk-15-3.pdf>
+File: project_files/figure-latex/unnamed-chunk-15-4.pdf Graphic file (type pdf)
+<use project_files/figure-latex/unnamed-chunk-15-4.pdf>
+File: project_files/figure-latex/unnamed-chunk-15-5.pdf Graphic file (type pdf)
+<use project_files/figure-latex/unnamed-chunk-15-5.pdf>
+File: project_files/figure-latex/unnamed-chunk-15-6.pdf Graphic file (type pdf)
+<use project_files/figure-latex/unnamed-chunk-15-6.pdf>
+File: project_files/figure-latex/unnamed-chunk-15-7.pdf Graphic file (type pdf)
+<use project_files/figure-latex/unnamed-chunk-15-7.pdf>
+
+Overfull \hbox (2.21828pt too wide) in paragraph at lines 517--518
+[][] []
+ []
+
+
+Overfull \hbox (2.21828pt too wide) in paragraph at lines 517--518
+[] []
+ []
+
+
+Overfull \hbox (2.21828pt too wide) in paragraph at lines 517--518
+[] []
+ []
+
+[11]
+Overfull \hbox (35.61868pt too wide) in paragraph at lines 547--563
  [][] 
  []
 
-[11] (./project.aux)
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[12] [13] (./project.aux)
 Package rerunfilecheck Info: File `project.out' has not changed.
 (rerunfilecheck)             Checksum: 8099CBE9537B46E0D37E53991E165527;2176.
  ) 
 Here is how much of TeX's memory you used:
- 42643 strings out of 478142
- 995137 string characters out of 5851623
- 1490431 words of memory out of 5000000
- 62611 multiletter control sequences out of 15000+600000
- 474879 words of font info for 79 fonts, out of 8000000 for 9000
+ 42746 strings out of 478142
+ 999820 string characters out of 5851623
+ 1489557 words of memory out of 5000000
+ 62696 multiletter control sequences out of 15000+600000
+ 477781 words of font info for 98 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  86i,13n,121p,1222b,479s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on project.pdf (12 pages).
+Output written on project.pdf (14 pages).

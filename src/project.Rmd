@@ -694,7 +694,7 @@ test <- cox.zph(fit_ph_final)$table
 kbl(test, booktabs = T, caption = "Proportional Hazard Test") %>%
   kable_styling(latex_options = c("striped", "hold_position"))
 ```
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.show = "hold", out.width = "50%"}
+```{r eval=FALSE, fig.show="hold", message=FALSE, warning=FALSE, include=FALSE, out.width=}
 library(survival)
 library(cowplot)
 plot(cox.zph(fit_ph_final), resid = F, hr=T, col=1,lwd=1.5)
