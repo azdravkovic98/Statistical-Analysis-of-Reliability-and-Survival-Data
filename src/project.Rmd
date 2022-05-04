@@ -696,9 +696,8 @@ colnames(fit.ph.table) <-  c("HR",
 
 
 ```{r relative-risks-tbl, echo=FALSE, message=FALSE, warning=FALSE}
-kbl(table, 
+kbl(fit.ph.table, 
     booktabs = T,
-    escape = F,
     caption = "Relative risks and CI for each covariate",
     align = "c") %>%
   kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
