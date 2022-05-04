@@ -82,20 +82,31 @@ kbl(table, booktabs = T, caption = "Data description") %>%
 Table \@ref(tab:data-desc) explains the covariates in the Rotterdam
 dataset.
 
+\subsection{Categorical Variables}
 
 When we investigate the categorical variables, we see that some have a larger difference between time until death than others.  When we first investigate menopause, we see that menopausal patients are very similar in their death time.  A very similar pattern is observed for chemotherapy but the patients that did not die had a slightly higher time before leaving the study.  While size, having three levels, needs to be interpreted slightly differently.  With patients that died, the larger cancer cells certainly caused it to happen sooner.  This makes intuitive sense that more severe cancer would have more long term health risks.  Among patients that do not die, only the extremely large cancer patients had a much lower recurrence time.  While small and medium patients had a very similar response.  Grade had a very similar response among all patients with higher grade patients living slightly shorter lives.  Patients given hormonal therapy seem to have a smaller tail among patients that died; meaning those who relapse are more likely to do it soon after treatment.  Surviving patients that had hormonal therapy also appear to be censored more quickly than those who do not receive the treatment.
 
 ```{r boxPlots, include=TRUE, message = FALSE, fig.show = "hold", out.width = "50%"}
 library(ggplot2)
-menoBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=meno,colour=meno)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
+menoBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=meno,colour=meno)) + geom_boxplot(lwd=0.75)+
+theme_minimal()+
+scale_fill_manual(values=c("darkolivegreen", "darkred")) + scale_colour_manual(values=c("black","black"))
 
-chemoBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=chemo,colour=chemo)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
+chemoBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=chemo,colour=chemo)) + geom_boxplot(lwd=0.75)+
+theme_minimal()+
+scale_fill_manual(values=c("darkolivegreen", "darkred")) + scale_colour_manual(values=c("black","black"))
 
-sizeBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=size,colour=size)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black","black"))
+sizeBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=size,colour=size)) + geom_boxplot(lwd=0.75)+
+theme_minimal()+
+scale_fill_manual(values=c("darkolivegreen", "darkred")) + scale_colour_manual(values=c("black","black","black"))
 
-gradeBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=grade,colour=grade)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
+gradeBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=grade,colour=grade)) + geom_boxplot(lwd=0.75)+
+theme_minimal()+
+scale_fill_manual(values=c("darkolivegreen", "darkred")) + scale_colour_manual(values=c("black","black"))
 
-hormonBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=hormon,colour=hormon)) + geom_boxplot(lwd=0.75)+ scale_fill_manual(values=c("darkgreen", "darkred")) + scale_colour_manual(values=c("black","black"))
+hormonBox <- ggplot(data, aes(x = death, y = dtime, fill=death, linetype=hormon,colour=hormon)) + geom_boxplot(lwd=0.75)+
+theme_minimal()+
+scale_fill_manual(values=c("darkolivegreen", "darkred")) + scale_colour_manual(values=c("black","black"))
 
 plot(menoBox)
 plot(chemoBox)
@@ -104,7 +115,7 @@ plot(gradeBox)
 plot(hormonBox)
 ```
 
-
+\subsection{Continuous Variables}
 
 Among continuous variables, we first investigated age.  We plotted a both the lowess curve and the linear model to see if they match.  If so, they most likely have data with a limited skew and do not require transformation for modeling.  We first evaluated age and there was not a difference between the linear and lowess curves.  Next, we investigated the relationship between er and death time.  Here we see a large deviation which was corrected for again with a log transform.  Finally, we evaluated pgr and it had a good fit overall.
 
@@ -115,22 +126,29 @@ Among continuous variables, we first investigated age.  We plotted a both the lo
 # Basic age
 ggplot(data, aes(x = age, y = dtime, color = death)) +
   geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
-  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
+  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) +
+  theme_minimal()+
+  scale_color_manual(values=c("darkolivegreen", "darkred"))
 
 # er
 ggplot(data, aes(x = er, y = dtime, color = death)) +
   geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
-  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
+  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) +
+  theme_minimal()+
+  scale_color_manual(values=c("darkolivegreen", "darkred"))
 
 # log(er)
 ggplot(data, aes(x = log(er), y = dtime, color = death)) +
   geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
-  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
+  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) +
+  theme_minimal()+
+  scale_color_manual(values=c("darkolivegreen", "darkred"))
 
 ggplot(data, aes(x = pgr, y = dtime, color = death)) +
   geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
-  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) + scale_color_manual(values=c("darkgreen", "red"))
-
+  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) +
+  theme_minimal()+
+  scale_color_manual(values=c("darkolivegreen", "darkred"))
 ```
 
 
@@ -139,11 +157,9 @@ ggplot(data, aes(x = pgr, y = dtime, color = death)) +
 Now the focus will be on the response variable, the censoring indicator,
 and the categorical variable.
 
-\subsection{Survival Distrubution by Levels of ...}
+\subsection{Survival Distrubution by Levels of \textit{Size}, \textit{Meno}, \textit{Hormon}, and \textit{Chemo}}
 
-(a) For each of the levels of the categorical variable, compute the
-    survival distribution. Plot them on the same graph. What do the
-    graphs suggest?
+For each of the levels of the categorical variables, we will compute the survival distribution and interpret the results.
 
 \subsubsection{Size}
 
@@ -151,7 +167,7 @@ and the categorical variable.
 fit.size <- survfit(Surv(dtime, as.numeric(death)) ~ size, data = data)
 ```
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, out.width = "85%", fig.align='center'}
 #install.packages("survminer")
 library(survminer)
 ggsurvplot(fit.size,
@@ -161,7 +177,7 @@ ggsurvplot(fit.size,
            linetype = "strata", # Change line type by groups
            surv.median.line = "hv", # Specify median survival
            ggtheme = theme_bw(), # Change ggplot2 theme
-           palette = c("#E7B800", "#2E9FDF", "maroon2"), 
+           palette = c("darkolivegreen", "darkred", "darkblue"), 
            data = data)
 ```
 
@@ -193,7 +209,7 @@ From Table \@ref(tab:median-size) can be seen that the median survival for Size 
 fit.meno <- survfit(Surv(dtime, as.numeric(death)) ~ meno, data = data)
 ```
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, out.width = "85%", fig.align='center'}
 ggsurvplot(fit.meno,
            pval = TRUE, conf.int = TRUE,
            risk.table = TRUE, # Add risk table
@@ -201,7 +217,7 @@ ggsurvplot(fit.meno,
            linetype = "strata", # Change line type by groups
            surv.median.line = "hv", # Specify median survival
            ggtheme = theme_bw(), # Change ggplot2 theme
-           palette = c("#E7B800", "#2E9FDF"), 
+           palette = c("darkred", "darkolivegreen"), 
            data = data)
 ```
 
@@ -232,7 +248,7 @@ menopause.
 fit.hormon <- survfit(Surv(dtime, as.numeric(death)) ~ hormon, data = data)
 ```
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, out.width = "85%", fig.align='center'}
 ggsurvplot(fit.hormon,
            pval = TRUE, conf.int = TRUE,
            risk.table = TRUE, # Add risk table
@@ -240,7 +256,7 @@ ggsurvplot(fit.hormon,
            linetype = "strata", # Change line type by groups
            surv.median.line = "hv", # Specify median survival
            ggtheme = theme_bw(), # Change ggplot2 theme
-           palette = c("#E7B800", "#2E9FDF"), 
+           palette = c("darkred", "darkolivegreen"), 
            data = data)
 ```
 
@@ -265,7 +281,7 @@ fit.chemo <- survfit(Surv(dtime, as.numeric(death)) ~ chemo, type="kaplan-meier"
 ```
 
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, out.width = "85%", fig.align='center'}
 ggsurvplot(fit.chemo,
            pval = TRUE, conf.int = TRUE,
            risk.table = TRUE, # Add risk table
@@ -273,7 +289,7 @@ ggsurvplot(fit.chemo,
            linetype = "strata", # Change line type by groups
            surv.median.line = "hv", # Specify median survival
            ggtheme = theme_bw(), # Change ggplot2 theme
-           palette = c("#E7B800", "#2E9FDF"), 
+           palette = c("darkred", "darkolivegreen"), 
            data = data)
 ```
 
@@ -292,12 +308,9 @@ postmenopausal patients.
 From Table \@ref(tab:median-chemo) can be seen that the median survival is `r fit.hormon.table[,'median'][1]` for patients that went through hormonal therapy, and `r fit.hormon.table[,'median'][2]` for those who did not, suggesting slightly better survival for patients that have gone through chemotherapy. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
 
 
-\subsection{Confidence Intervals and Estimators by Levels of ...}
+\subsection{Confidence Intervals and Estimators by Levels of \textit{Size}, \textit{Meno}, \textit{Hormon}, and \textit{Chemo}}
 
-
-(b) For each level obtain an appropriate estimator and confidence
-    interval for the 3 quartiles of the survival curves. Interpret the
-    results.
+For each level we will obtain an appropriate estimator and confidence interval for the 3 quartiles of the survival curves and interpret the results.
 
 ```{r quantiles-size, echo=FALSE, message=FALSE, warning=FALSE}
 library(dplyr)
@@ -327,7 +340,7 @@ quantile.size.table <- data.frame(quantile25,
                                   quantile75,
                                   quantile75.lower,
                                   quantile75.upper)
-rownames(quantile.size.table) <- c("Size ($\\leq$50)" ,"Size (20$-$50)", "Size ($>$50)")
+rownames(quantile.size.table) <- c("Size ($\\leq$20)" ,"Size (20$-$50)", "Size ($>$50)")
 names(quantile.size.table)[1] <- "$\\hat{q_1}$"
 names(quantile.size.table)[2] <- "5\\%"
 names(quantile.size.table)[3] <- "95\\%"
@@ -492,8 +505,6 @@ Finally, we evaluate the effect of chemotherapy.  Here we see that generally che
 
 \subsection{Test of Differences Between the Survival Curves}
 
-(c) Conduct a single test of differences between the survival curves.
-    Justify your choice of test.
     
 ```{r stratify, echo=FALSE, message=FALSE, warning=FALSE}
 # Stratification by size
@@ -504,17 +515,17 @@ chisq.size <- stratify.size$chisq
 df.size <- length(stratify.size$n) - 1
 p.size <- 1 - pchisq(stratify.size$chisq, 
                      length(stratify.size$n) - 1)
-by.size <- c(round(chisq.size, 2), round(df.size), p.size)
+by.size <- c(round(chisq.size, 2), round(df.size), round(p.size, 5))
 
-# Stratification by age
-stratify.age <- survdiff(Surv(dtime, as.numeric(death)) ~ meno + strata(age), 
+# Stratification by chemo
+stratify.chemo <- survdiff(Surv(dtime, as.numeric(death)) ~ meno + strata(chemo), 
                           data = data)
 
-chisq.age <- stratify.age$chisq
-df.age <- length(stratify.age$n) - 1
-p.age <- 1 - pchisq(stratify.age$chisq, 
-                    length(stratify.age$n) - 1)
-by.age <- c(round(chisq.age, 2), round(df.age), p.age)
+chisq.chemo <- stratify.chemo$chisq
+df.chemo <- length(stratify.chemo$n) - 1
+p.chemo <- 1 - pchisq(stratify.chemo$chisq, 
+                    length(stratify.chemo$n) - 1)
+by.chemo <- c(round(chisq.chemo, 2), round(df.chemo), round(p.chemo, 5))
 
 
 # Stratification by hormon
@@ -526,10 +537,10 @@ chisq.hormon <- stratify.hormon$chisq
 df.hormon <- length(stratify.hormon$n) - 1
 p.hormon <- 1 - pchisq(stratify.hormon$chisq, 
                        length(stratify.hormon$n) - 1)
-by.hormon <- c(round(chisq.hormon, 2), round(df.hormon), p.hormon)
+by.hormon <- c(round(chisq.hormon, 2), round(df.hormon), round(p.hormon, 5))
 
-table <- rbind(by.age, by.size, by.hormon)
-rownames(table) <- c("Stratified by Age", 
+table <- rbind(by.chemo, by.size, by.hormon)
+rownames(table) <- c("Stratified by Chemo", 
                      "Stratified by Size", 
                      "Stratified by Hormon")
 colnames(table) <- c("$\\chi^2$", "df", "p-value")
@@ -549,14 +560,15 @@ stratify.size.fit <- survfit(Surv(dtime, as.numeric(death)) ~ meno + strata(size
 ```
 
 
-```{r stratify-size-plot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap = "Independent variable meno stratified by size of the tumor.", fig.pos="H"}
+```{r stratify-size-plot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap = "Independent variable meno stratified by size of the tumor.", fig.pos="H", out.width = "85%", fig.align='center'}
 ggsurvplot(stratify.size.fit,       # survfit object with calculated statistics.
            pval = TRUE,             # show p-value of log-rank test.
            conf.int = TRUE,        # show confidence intervals for point estimates of survival curves.
            conf.int.style = "step",  # customize style of confidence intervals
            xlab = "Time in days",   # customize X axis label.
            break.time.by = 1500,     # break X axis in time intervals by ...
-           ggtheme = theme_light(), # customize plot and risk table with a theme.
+           ggtheme = theme_bw(), # Change ggplot2 theme
+           palette = c("darkred", "darkolivegreen", "darkcyan", "darkgoldenrod", "darkorange", "darkorchid"),
            surv.median.line = "hv",  # add the median survival pointer.
            #palette = c("#E7B800", "#2E9FDF", "maroon2"), # custom color palettes.
            data = data,
@@ -564,20 +576,19 @@ ggsurvplot(stratify.size.fit,       # survfit object with calculated statistics.
 ```
 
 
-In this setting we chose to use the log-rank test.  This is because we do not want to weight any observations more heavily than others.  Thus, we W(Y(j)) = 1.  The log-rank test is the most powerful so it is the best choice.  However, this test is only the most powerful when the hazard rates are proportional to each other within populations.  For this reason, we stratify the model to identify its impacts and make sure no assumptions are violated.
+In this setting we chose to use the log-rank test.  This is because we do not want to weight any observations more heavily than others.  Thus, we set $W(Y(j)) = 1$.  The log-rank test is the most powerful so it is the best choice.  However, this test is only the most powerful when the hazard rates are proportional to each other within populations.  For this reason, we stratify the model to identify its impacts and make sure no assumptions are violated.
 
 What we see when we perform this stratification is a very large difference between someone without menopause and small cancer cells and someone who is menopausal and has very large cancer cells.  We also see that stratifying on age has the best fit.
 
 
-
 \section{Modeling}
 
+\subsection {Semiparametric Proportional Hazards Model}
 
-\subsection {Semi Parametric PH models}
-For Semi Parametric Proportional Hazards Model, We proceed as follows:
+For semiparametric proportional hazards model, we proceed as follows:
 
-The variable size is a categorical variable with 3 levels so we recode the levels 20-50 and >50 as binary variables and take the level <=20 as reference level.
-We then estimate the full model only excluding rtime and recur variables since they are not the chosen event of interest.
+The variable \textit{size} is a categorical variable with 3 levels. We recode the levels Size ($20-50$) and Size ($>50$) as binary variables, and take the level Size ($\leq20$) as reference level.
+We then estimate the full model, only excluding variables \textit{rtime} and \textit{recur}, since they are not the chosen event of interest.
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
@@ -617,54 +628,83 @@ fit_ph_aic= coxph(formula = Surv(dtime, as.numeric(death)) ~ as.factor(size) + a
 summary(fit_ph_aic)
 
 AIC = c(extractAIC(fit_ph_aic)[2], extractAIC(fit_ph3)[2])
-names(AIC) = c("SelectionAIC","Backward Selection" )
-###No huge difference in AIC
+names(AIC) = c("Stepwise AIC","Backward Selection" )
 fit_ph_final <- fit_ph3
 ```
 
-For model selection with all covariates, we first fit a full model to apply backward selection procedure. By excluding the covariate with the largest p-value in each iteration, we ended up with the model "Surv(dtime,as.numeric(death))~meno+hormon+size+ age+grade+nodes+pgr" where all covariates are significant. Then we also run stepwise AIC selection in both direction and it resulted the model with size, age, 
-grade, nodes, pgr as variables. To decide which criteria should be used to choose the model, we approach from 2 different points. From a logical point of view, the model including hormonal treatment is reasonable since it might have a direct influence on survival time. If we compare AIC of both models, we see that there is no huge difference (18543 and 18546, respectively). So we decide to go with the model selected based on p-value since it includes hormon in exchange of acceptable increase in AIC.
+```{r AIC-table, echo=FALSE, message=FALSE, warning=FALSE}
+AIC.table <- rbind(AIC)
+rownames(AIC.table) <- "AIC"
+
+kbl(AIC.table, 
+    escape = FALSE, booktabs = T,
+    caption = "AIC values for models selected by stepwise AIC procedure, and backward selection procedure. ") %>%
+  kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
+```
+
+For model selection with all covariates, we first fit a full model to apply backward selection procedure. By excluding the covariate with the largest p-value in each iteration, we ended up with the model where significant covariates are \textit{size, age, grade, nodes, pgr, meno, hormon}.
+
+Next, we run stepwise AIC selection in both directions. This resulted with the model where significant covariates are \textit{size, age, grade, nodes, pgr}. 
+
+To decide which procedure should be used to choose the model, we approach from 2 different points. From a logical point of view, the model including hormonal treatment is reasonable since it might have a direct influence on survival time. If we compare AIC of both models, from Table \@ref(tab:AIC-table) we see that there is no huge difference (`r round(AIC[1])` and `r round(AIC[2])`, respectively). So we decide to go with the model selected based on p-value since it includes hormon in exchange of acceptable increase in AIC.
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 ##CI for HR of size>50 vs size20-50
-covmat<-vcov(fit_ph_final)
-e<-exp(fit_ph_final$coefficients['as.factor(size)>50'])/exp(fit_ph_final$coefficients['as.factor(size)20-50'])
-ub<-exp(fit_ph_final$coefficients['as.factor(size)>50']-fit_ph_final$coefficients['as.factor(size)20-50'] -qnorm(0.025)*sqrt(covmat['as.factor(size)>50','as.factor(size)>50']+covmat['as.factor(size)20-50','as.factor(size)20-50']-2*covmat['as.factor(size)20-50','as.factor(size)>50']))
-lb<-exp(fit_ph_final$coefficients['as.factor(size)>50']-fit_ph_final$coefficients['as.factor(size)20-50'] +qnorm(0.025)*sqrt(covmat['as.factor(size)>50','as.factor(size)>50']+covmat['as.factor(size)20-50','as.factor(size)20-50']-2*covmat['as.factor(size)20-50','as.factor(size)>50']))
-ci<-c(e,lb,ub)
-names(ci)<-c("est","lb","ub")
+covmat <- vcov(fit_ph_final)
+e <- exp(fit_ph_final$coefficients['as.factor(size)>50']) /
+     exp(fit_ph_final$coefficients['as.factor(size)20-50'])
+ub <- exp(fit_ph_final$coefficients['as.factor(size)>50'] -
+          fit_ph_final$coefficients['as.factor(size)20-50'] -
+          qnorm(0.025) * sqrt(covmat['as.factor(size)>50',
+                                     'as.factor(size)>50'] +
+                              covmat['as.factor(size)20-50',
+                                     'as.factor(size)20-50'] -
+                              2 *
+                              covmat['as.factor(size)20-50',
+                                     'as.factor(size)>50']))
+lb <- exp(fit_ph_final$coefficients['as.factor(size)>50'] -
+          fit_ph_final$coefficients['as.factor(size)20-50'] +
+          qnorm(0.025) * sqrt(covmat['as.factor(size)>50',
+                                     'as.factor(size)>50'] +
+                              covmat['as.factor(size)20-50',
+                                     'as.factor(size)20-50'] -
+                                2 *
+                              covmat['as.factor(size)20-50',
+                                     'as.factor(size)>50']))
+ci <- c(e, lb, ub)
+names(ci) <- c("est", "lb", "ub")
 
-###QUESTION: Do we have tied observations??
+### Q: Do we have tied observations??
 
-fit.ph.table <- summary(fit_ph_final)$conf[,c(1,3,4)]
-fit.ph.table<-rbind(fit.ph.table,ci)
-row.names(fit.ph.table)[9]<-"size>50 vs size20-50"
-colnames(fit.ph.table)<-c("HR","95% CI Lower Bound","95% CI Upper Bound")
-kable(fit.ph.table, 
-      caption = "Relative Risks and CI for each covariate") %>%
-kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
+fit.ph.table <- summary(fit_ph_final)$conf[, c(1, 3, 4)]
+fit.ph.table <- rbind(fit.ph.table, ci)
+rownames(fit.ph.table) <- c("Meno = 1 vs Meno = 0",
+                             "Hormon = 1 vs Hormon = 0",
+                             "Size $20-50$ vs Size $\\leq$ 20",
+                             "Size $>$50 vs Size $\\leq$ 20",
+                             "Age",
+                             "Grade = 3 vs Grade = 2",
+                             "Nodes",
+                             "Pgr",
+                             "Size $>$50 vs Size $20-50$")
+colnames(fit.ph.table) <-  c("HR", 
+                             "5$%$", 
+                             "95$%$")
 ```
+
+
 
 ```{r relative-risks-tbl, echo=FALSE, message=FALSE, warning=FALSE}
-relativeRisks.table <- function(model, digits = 3) {
-  
-  table <- round(summary(model)$conf.int[, -2], digits)
-  label <- c("")
-  
-  # Add row names after the models have been fixed!
-  rownames(table) <- c("Chemo", "Meno", "Hormon", "Size (20-50)", "Size (>50)", 
-                       "Age", "Grade = 3", "Nodes", "Pgr", "Er")
-  colnames(table) <- c("$exp(\\hat{\\beta})$", "5\\%", "95\\%")
-
-  table
-}
-
-kbl(relativeRisks.table(fit_ph1), 
-    escape = FALSE, booktabs = T,
-    caption = "Estimators and confidence intervals for relative risks under xxxxx model.") %>%
+kbl(table, 
+    booktabs = T,
+    escape = F,
+    caption = "Relative risks and CI for each covariate",
+    align = "c") %>%
   kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
+
 ```
+
 
 
 Estimation and CI of relative risks for every pair of levels of the
@@ -680,7 +720,7 @@ with 95%CI [??] HR of age i vs age i-1: 1.0075 with 95%CI [1.00110
 HR of recur vs non-recur: 0.0131 with 95%CI [0.01043 0.01646] HR of
 rtime i vs rtime i-1: 0.9985 with 95%CI [0.99841 0.99854]
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 #Test for assumption of constant HR 
 test <- cox.zph(fit_ph_final)$table
 kbl(test, booktabs = T, caption = "Proportional Hazard Test") %>%
@@ -688,7 +728,7 @@ kbl(test, booktabs = T, caption = "Proportional Hazard Test") %>%
 ```
 
 We run a statistical test based on Schoenfeld residuals for proportional
-hazard assumption for each covariate included in the cox fit. From the
+hazard assumption for each covariate included in the Cox fit. From the
 output, one can see that test is statistically significant for some
 covariates like age, pgr, and meno with nodes and grade being a borderline case.  The global test is also significant.
 So we can state that proportional hazard assumption is violated since
@@ -735,8 +775,3 @@ kbl(table, booktabs = T, caption = "Parametric Model Coefficient Comparison") %>
 
 When we look at our categorical variable, hormon, it is significant and the confidence interval confirms this as it does not contain 0.  However, it should be noted that this is a borderline case.
 
-
-<!-- # References -->
-
-<!-- ::: {#refs} -->
-<!-- ::: -->
