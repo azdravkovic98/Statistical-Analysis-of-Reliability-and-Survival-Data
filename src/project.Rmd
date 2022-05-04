@@ -625,7 +625,6 @@ AIC = c(extractAIC(fit_ph_aic)[2], extractAIC(fit_ph3)[2])
 names(AIC) = c("SelectionAIC","Backward Selection" )
 ###No huge difference in AIC
 fit_ph_final <- fit_ph3
-fit_ph_final$coefficients
 
 ```
 
@@ -633,6 +632,12 @@ For model selection with all covariates, we first apply backward selection proce
 As an alternative we also run stepwise AIC selection in both direction which selecting the model with the lowest AIC among all possible combinations of models with one more or one less covariate in each iteration. It resulted the model with size, age, 
 grade, nodes, pgr as variables. In order to decide which criteria should be used to choose the model, we approach from 2 different points. From a logical point of view, the model including hormonal treatment seems reasonable since it has an influence on both death time and censoring time of subjects as we explored in the exploratory data analysis part. If we compare AIC of both models, we see that there is no huge difference (18543 and 18546, respectively). So we decide to go with the model selected based on p-value since it includes hormon in exchange of acceptable increase in AIC.
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+kbl(fit_ph_final$coefficients, 
+    escape = FALSE, booktabs = TRUE,
+    caption = "Estimated Coefficients of Covariates Under the Selected Model",
+     col.names = "$\\beta$" ) %>% kable_styling(font_size = 15, latex_options = c("striped", "hold_position"))
+```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 ##CI for HR of size>50 vs size20-50
@@ -676,7 +681,7 @@ kbl(relativeRisks.table(fit_ph_final),
 ```
 
 Estimation and CI of relative risks for every pair of levels of the
-categorical variables are calculated and shown in the table above. With the aim of checking constant proportional hazard assumption, we run a statistical test based on Schoenfeld residuals for each covariate included in the fitted model with the null hypothesis of residuals being independent from time. From the output below, one can see that test is statistically highly significant for the covariates pgr and age with nodes and menopause being a borderline case. It shows that relative risks for categorical variables are constant over time while null hypothesis of constant hazard ratio is rejected for continuous variables. 
+categorical variables are calculated and shown in the table above. With the purpose of checking constant proportional hazard assumption, we run a statistical test based on Schoenfeld residuals for each covariate included in the fitted model with the null hypothesis of residuals being independent from time. From the output below, one can see that test is statistically highly significant for the covariates pgr and age with nodes and menopause being a borderline case. It shows that relative risks for categorical variables are constant over time while null hypothesis of constant hazard ratio is rejected for continuous variables. 
 
 ##The global test is also highly significant and the null hypothesis can be rejected. 
 ##So we can conclude that proportional hazard assumption of constant hazard ratio over time is violated since there is significant dependency between Schoenfeld residuals and time.
@@ -688,6 +693,12 @@ categorical variables are calculated and shown in the table above. With the aim 
 test <- cox.zph(fit_ph_final)$table
 kbl(test, booktabs = T, caption = "Proportional Hazard Test") %>%
   kable_styling(latex_options = c("striped", "hold_position"))
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.show = "hold", out.width = "50%"}
+library(survival)
+library(cowplot)
+plot(cox.zph(fit_ph_final), resid = F, hr=T, col=1,lwd=1.5)
+
 ```
 
 
