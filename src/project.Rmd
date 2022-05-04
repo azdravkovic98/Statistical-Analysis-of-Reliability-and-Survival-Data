@@ -688,7 +688,7 @@ categorical variables are calculated and shown in the table above. With the purp
 **??? Do you agree we should interpret the test outputs excluding cont variables as above since its stated in the project pdf that we are interested in relative risks for categorical variables or should we just look at global test and say that assumption is violated?**
 
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 #Test for assumption of constant HR 
 test <- cox.zph(fit_ph_final)$table
 kbl(test, booktabs = T, caption = "Proportional Hazard Test") %>%
