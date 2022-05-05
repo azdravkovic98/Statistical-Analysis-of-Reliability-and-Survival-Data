@@ -3,6 +3,7 @@ documentclass: article
 output:
   bookdown::pdf_document2:
     latex_engine: xelatex
+    extra_dependencies: ["float"]
     includes:
       in_header: preamble.sty
       before_body: titlepage.sty
@@ -11,7 +12,7 @@ output:
 
 ```{r setup, include=FALSE}
 options(knitr.kable.NA = '')
-knitr::opts_chunk$set(echo = FALSE, fig.pos = "!ht", out.extra = "")
+knitr::opts_chunk$set(echo = FALSE, fig.pos = "H", out.extra = "")
 ```
 
 \section{Introduction}
@@ -20,7 +21,14 @@ The Rotterdam dataset consists of observations taken from 2982 patients diagnose
 
 In many medical studies, time to death is the event of interest. However, in cancer, another important measure is the time between response to treatment and recurrence or relapse-free survival time. It is important to state what the event is and when the period of observation starts and finishes. 
 
-In this report we will analyze \textit{overall survival} - the time from date of curative surgery to the time of death. In our dataset censoring variable is variable \textit{death}, and the time variable is \textit{dtime}. 
+In this report we will analyze \textit{overall survival} - the time from date of curative surgery to the time of death. In our dataset censoring variable is variable \textit{death}, and the time variable is \textit{dtime}. Hence, recurrence variables \textit{recur}, and \textit{rtime} will be excluded in the further analysis.
+
+In the Rotterdam dataset we encounter right censored data only. Right censoring arises largely from the fact that only some individuals have experienced the event and, subsequently, survival times will be unknown for a subset of the study group. This phenomenon may arise in the following ways: 
+
+  * A patient has not (yet) experienced the relevant outcome, such as relapse or death, by the time of the close of the study.
+  * A patient is lost to follow-up during the study period.
+  * A patient experiences a different event that makes further follow-up impossible.
+
 
 ```{r message=FALSE, warning=FALSE}
 library(survival)
@@ -57,7 +65,7 @@ kbl(table, booktabs = T, caption = "Data description") %>%
   kable_styling(latex_options = c("striped", "hold_position"))
 ```
 
-
+\newpage
 
 \section{Exploratory Data Analysis} \label{EDA}
 
@@ -130,6 +138,7 @@ ggplot(data, aes(x = pgr, y = dtime, color = death)) +
   scale_color_manual(values=c("darkolivegreen", "darkred"))
 ```
 
+\newpage
 
 \section{Further Analysis}
 
@@ -178,9 +187,9 @@ kbl(fit.size.table,
   kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
 
-At time zero, the survival probability is 1.0 (or 100% of the participants are alive). At time 2250, the probability of survival is approximately 0.625 for size\>=50, and 0.85 for size\<50. 
+At time zero, the survival probability is 1.0 (or 100% of the participants are alive). E.g. on the day 4000, the probability of survival for patients whose cancer size exceeds 50 is approximately 25%, while the same probability for the patients with cancer size less than 20 stands around 62%. 
 
-From Table \@ref(tab:median-size) can be seen that the median survival for Size \geq 50 is `r fit.size.table[, 'median'][1]`, for Size  20-50 is `r fit.size.table[, 'median'][2]`, and for Size \> 50 is `r fit.size.table[, 'median'][3]`. This suggests worse survival for patients with tumor of larger size. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
+Table \@ref(tab:median-size) shows that median survival times for patients with cancer size smaller than 20, between 20 and 50, and greater that 50 is respectively: `r fit.size.table[, 'median'][1]`, `r fit.size.table[, 'median'][2]`, and `r fit.size.table[, 'median'][3]`. This suggests worse survival for patients with tumor of larger size. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
 
 \subsubsection{Menopause}
 
@@ -212,13 +221,7 @@ kbl(fit.meno.table,
 ```
 
 
-
-At time zero, the survival probability is 1.0 (or 100% of the
-participants are alive). At time 2200, the probability of survival is
-approximately 0.75 for non-menopausal patients, and 0.825 for
-menopausal patients.
-
-From Table \@ref(tab:median-meno) can be seen that the median survival is `r fit.meno.table[,'median'][1]` for non-menopausal patients, and `r fit.meno.table[,'median'][2]` for menopausal, suggesting worse survival for patients that have gone through
+Table \@ref(tab:median-meno) shows that the median survival time is `r fit.meno.table[,'median'][1]` for non-menopausal patients, and `r fit.meno.table[,'median'][2]` for menopausal, suggesting worse survival for patients that have gone through
 menopause.
 
 \subsubsection{Hormonal Treatment}
@@ -251,12 +254,7 @@ kbl(fit.hormon.table,
 
 ```
 
-At time zero, the survival probability is 1.0 (or 100% of the
-participants are alive). At time 2200, the probability of survival is
-approximately 0.75 for premenopausal patients, and 0.825 for
-postmenopausal patients.
-
-From Table \@ref(tab:median-hormon) can be seen that the median survival is `r fit.hormon.table[,'median'][1]` for patients that went through hormonal therapy, and `r fit.hormon.table[,'median'][2]` for those who did not, suggesting slightly worse survival for patients that have gone through the hormonal therapy. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
+Table \@ref(tab:median-hormon) shows that the median survival time is `r fit.hormon.table[,'median'][1]` for patients that went through hormonal therapy, and `r fit.hormon.table[,'median'][2]` for those who did not, suggesting slightly worse survival for patients that have gone through the hormonal therapy. 
 
 \subsubsection{Chemotherapy}
 
@@ -279,11 +277,6 @@ ggsurvplot(fit.chemo,
 
 ```{r median-chemo, include=TRUE, message = FALSE}
 fit.chemo.table <- summary(fit.chemo)$table
-kbl(fit.chemo.table, 
-      caption = "Median survival times for each group.") %>%
-kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
-
-fit.chemo.table <- summary(fit.chemo)$table
 rownames(fit.chemo.table) <- c("Chemo = 0", "Chemo = 1")
 #colnames(fit.meno.table) <- c()
 
@@ -294,12 +287,8 @@ kbl(fit.chemo.table,
 
 ```
 
-At time zero, the survival probability is 1.0 (or 100% of the
-participants are alive). At time 2200, the probability of survival is
-approximately 0.75 for premenopausal patients, and 0.825 for
-postmenopausal patients.
-
-From Table \@ref(tab:median-chemo) can be seen that the median survival is `r fit.hormon.table[,'median'][1]` for patients that went through hormonal therapy, and `r fit.hormon.table[,'median'][2]` for those who did not, suggesting slightly better survival for patients that have gone through chemotherapy. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
+Table \@ref(tab:median-chemo) shows that the median survival time is `r fit.hormon.table[,'median'][1]` for patients that went through chemotherapy, and `r fit.hormon.table[,'median'][2]` for those who did not, suggesting slightly better survival for patients that have gone through chemotherapy. 
+The reason for this could be that 
 
 
 \subsection{Confidence Intervals and Estimators by Levels of \textit{Size}, \textit{Meno}, \textit{Hormon}, and \textit{Chemo}}
@@ -577,7 +566,7 @@ In this setting we chose to use the log-rank test.  This is because we do not wa
 
 What we see when we perform this stratification is a very large difference between someone without menopause and small cancer cells and someone who is menopausal and has very large cancer cells.  We also see that stratifying on age has the best fit.
 
-
+\newpage
 
 \section{Modeling}
 
@@ -618,22 +607,32 @@ fit_ph2 <-
     data = data, ties = "efron"
   )
 anova(fit_ph2)
-fit_ph3<-coxph(Surv(dtime,as.numeric(death))~meno+hormon+as.factor(size)+age+as.factor(grade)+nodes +pgr, data=data,ties = "efron")
+fit_ph3 <-
+  coxph(
+    Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age +
+      as.factor(grade) + nodes + pgr,
+    data = data,
+    ties = "efron"
+  )
 anova(fit_ph3)
 #all variables in fit_ph3 is significant
 
 #variable selection based on AIC
 #stepAIC <- stepAIC(fit_ph1,direction="both")
 
-#chosen model:Surv(dtime, death) ~ as.factor(size) + age + 
-   # as.factor(grade) + nodes + pgr
+#chosen model:Surv(dtime, death) ~ as.factor(size) + age +
+# as.factor(grade) + nodes + pgr
 
-fit_ph_aic= coxph(formula = Surv(dtime, as.numeric(death)) ~ as.factor(size) + age + 
-    as.factor(grade) + nodes + pgr , data = data, ties = "efron")
+fit_ph_aic = coxph(
+  formula = Surv(dtime, as.numeric(death)) ~ as.factor(size) + age +
+    as.factor(grade) + nodes + pgr ,
+  data = data,
+  ties = "efron"
+)
 summary(fit_ph_aic)
 
 AIC = c(extractAIC(fit_ph_aic)[2], extractAIC(fit_ph3)[2])
-names(AIC) = c("AIC Selection","Backward Selection" )
+names(AIC) = c("AIC Selection", "Backward Selection")
 ###No huge difference in AIC
 fit_ph_final <- fit_ph3
 
@@ -675,78 +674,55 @@ kbl(table,
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-##CI for HR of size>50 vs size20-50
-covmat<-vcov(fit_ph_final)
-e<-exp(fit_ph_final$coefficients['as.factor(size)>50'])/exp(fit_ph_final$coefficients['as.factor(size)20-50'])
-ub<-exp(fit_ph_final$coefficients['as.factor(size)>50']-fit_ph_final$coefficients['as.factor(size)20-50'] -qnorm(0.025)*sqrt(covmat['as.factor(size)>50','as.factor(size)>50']+covmat['as.factor(size)20-50','as.factor(size)20-50']-2*covmat['as.factor(size)20-50','as.factor(size)>50']))
-lb<-exp(fit_ph_final$coefficients['as.factor(size)>50']-fit_ph_final$coefficients['as.factor(size)20-50'] +qnorm(0.025)*sqrt(covmat['as.factor(size)>50','as.factor(size)>50']+covmat['as.factor(size)20-50','as.factor(size)20-50']-2*covmat['as.factor(size)20-50','as.factor(size)>50']))
-ci<-c(e,lb,ub)
-names(ci)<-c("est","lb","ub")
-
-###QUESTION: Do we have tied observations??
-
-fit.ph.table <- summary(fit_ph_final)$conf[,c(1,3,4)]
-fit.ph.table<-rbind(fit.ph.table,ci)
-row.names(fit.ph.table)<-c("meno=1", "hormon=1", "size20-50", "size>50", "age i", "grade=3", "nodes i", "pgr i", "size>50")
-reflev<-c("0", "0", "size>=20", "size>=20","age i-1", "grade=2", "nodes i-1", "pgr i-1", "size20-50")
-fit.ph.table1<-cbind(reflev,fit.ph.table)
-colnames(fit.ph.table1)<-c("vs Level","Relative Risks ($exp(\\hat{\\beta})$)","95% CI Lower Bound","95% CI Upper Bound")
-# 
-# row.names(fit.ph.table) <- c("Meno = 1 vs Meno = 0",
-#                              "Hormon = 1 vs Hormon = 0",
-#                              "Size $20-50$ vs Size $\\leq$ 20",                              
-#                              "Size $>$50 vs Size $\\leq$ 20",
-#                              "Age",
-#                              "Grade = 3 vs Grade = 2",
-#                              "Nodes",
-#                              "Pgr",
-#                              "Size $>$50 vs Size $20-50$")
-# colnames(fit.ph.table) <-  c("HR", 
-#                              "5$%$", 
-#                              "95$%$")
-
-
-kbl(fit.ph.table1, 
-      caption = "Relative Risks and CI for Every Pairs of Levels of Categorical Variables") %>%
-kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
+## CI for HR of size>50 vs size20-50
+covmat <- vcov(fit_ph_final)
+e <-
+  exp(fit_ph_final$coefficients['as.factor(size)>50']) / exp(fit_ph_final$coefficients['as.factor(size)20-50'])
+ub <-
+  exp(
+    fit_ph_final$coefficients['as.factor(size)>50'] - fit_ph_final$coefficients['as.factor(size)20-50'] -
+      qnorm(0.025) * sqrt(covmat['as.factor(size)>50', 'as.factor(size)>50'] +
+                            covmat['as.factor(size)20-50', 'as.factor(size)20-50'] - 2 * covmat['as.factor(size)20-50', 'as.factor(size)>50'])
+  )
+lb <-
+  exp(
+    fit_ph_final$coefficients['as.factor(size)>50'] - fit_ph_final$coefficients['as.factor(size)20-50'] +
+      qnorm(0.025) * sqrt(covmat['as.factor(size)>50', 'as.factor(size)>50'] +
+                            covmat['as.factor(size)20-50', 'as.factor(size)20-50'] - 2 * covmat['as.factor(size)20-50', 'as.factor(size)>50'])
+  )
+ci <- c(e, lb, ub)
+names(ci) <- c("est", "lb", "ub")
 ```
 
 
-```{r relative-risks-tbl, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-relativeRisks.table <- function(model, digits = 3) {
-  
-  table <- round(summary(model)$conf.int[, -2], digits)
-  label <- c("")
-  
-  # Add row names after the models have been fixed!
-  rownames(table) <- c( "Meno", "Hormon", "Size (20-50)", "Size (>50)", 
-                       "Age", "Grade = 3", "Nodes", "Pgr")
-  colnames(table) <- c("$exp(\\hat{\\beta})$", "5\\%", "95\\%")
-  
-  table
-}
+```{r relative-risks-tbl, echo=FALSE, message=FALSE, warning=FALSE}
+model <- fit_ph_final
+table <- round(summary(model)$conf.int[, -2], 3)
+label <- c("")
+table <- rbind(table, ci)
+# Add row names after the models have been fixed!
+rownames(table) <- c("Meno = 1 vs Meno = 0",
+                     "Hormon = 1 vs Hormon = 0",
+                     "Size $20-50$ vs Size $\\leq$ 20",                              
+                     "Size $>$ 50 vs Size $\\leq$ 20",
+                     "Age = i vs Age = i-1",
+                     "Grade = 3 vs Grade = 2",
+                     "Nodes = i vs Nodes = i-1",
+                     "Pgr = i vs Pgr = i-1",
+                     "Size $>$50 vs Size $20-50$")
+colnames(table) <- c("$exp(\\hat{\\beta})$", "5\\%", "95\\%")
 
-kbl(fit.ph.table, 
-    booktabs = T,
-    caption = "Relative risks and CI for each covariate",
-    align = "c") %>%
-  kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
-
-kbl(relativeRisks.table(fit_ph_final), 
+kbl(table, 
     escape = FALSE, booktabs = TRUE,
-    caption = "Estimators and confidence intervals for relative risks under x model.") %>% kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
+    caption = "Relative risks and CI for each covariate") %>% 
+  kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
 ```
 
 Estimation and CI of relative risks for every pair of levels of the
-categorical variables are calculated and shown in the table above. With the purpose of checking constant proportional hazard assumption, we run a statistical test based on Schoenfeld residuals for each covariate included in the fitted model with the null hypothesis of residuals being independent from time. From the output below, one can see that test is statistically highly significant for the covariates pgr and age with nodes and menopause being a borderline case. It shows that relative risks for categorical variables are constant over time while null hypothesis of constant hazard ratio is rejected for continuous variables. 
-
-##The global test is also highly significant and the null hypothesis can be rejected. 
-##So we can conclude that proportional hazard assumption of constant hazard ratio over time is violated since there is significant dependency between Schoenfeld residuals and time.
-**??? Do you agree we should interpret the test outputs excluding cont variables as above since its stated in the project pdf that we are interested in relative risks for categorical variables or should we just look at global test and say that assumption is violated?**
+categorical variables are calculated and shown in the Table \@ref(tab:relative-risks-tbl). 
 
 
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r PH-test, echo=FALSE, message=FALSE, warning=FALSE}
 #Test for assumption of constant HR 
 test <- cox.zph(fit_ph_final)$table
 colnames(test) <- c("$\\chi^2$",
@@ -765,11 +741,19 @@ kbl(round(test, 4), booktabs = T, escape = FALSE, caption = "Proportional Hazard
 ```
 
 
+
+With the purpose of checking constant proportional hazard assumption, we run a statistical test based on Schoenfeld residuals for each covariate included in the fitted model with the null hypothesis of residuals being independent from time. From the Table \@ref(tab:PH-test), one can see that test is statistically highly significant for the covariates pgr and age with nodes and menopause being a borderline case. It shows that relative risks for categorical variables are constant over time while null hypothesis of constant hazard ratio is rejected for continuous variables. 
+
+##The global test is also highly significant and the null hypothesis can be rejected. 
+##So we can conclude that proportional hazard assumption of constant hazard ratio over time is violated since there is significant dependency between Schoenfeld residuals and time.
+**??? Do you agree we should interpret the test outputs excluding cont variables as above since its stated in the project pdf that we are interested in relative risks for categorical variables or should we just look at global test and say that assumption is violated?**
+
+
+
 ```{r eval=FALSE, fig.show="hold", message=FALSE, warning=FALSE, include=FALSE, out.width="85%"}
 library(survival)
 library(cowplot)
 plot(cox.zph(fit_ph_final), resid = F, hr=T, col=1,lwd=1.5)
-
 ```
 
 \subsection {Parametric Regression Models}
