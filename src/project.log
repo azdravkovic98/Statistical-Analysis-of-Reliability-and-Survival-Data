@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.5.2)  5 MAY 2022 19:40
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.5.2)  5 MAY 2022 20:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1254,20 +1254,26 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
+
+LaTeX Warning: Reference `param-models' on page 10 undefined on input line 530.
+
 [10]
 Overfull \hbox (6.62868pt too wide) in paragraph at lines 549--565
  [][] 
  []
 
 [11] (./project.aux)
+
+LaTeX Warning: There were undefined references.
+
 Package rerunfilecheck Info: File `project.out' has not changed.
 (rerunfilecheck)             Checksum: 35A8C65B22F112EE1D4366EB7E2D8F78;2971.
  ) 
 Here is how much of TeX's memory you used:
- 44109 strings out of 478142
- 1024233 string characters out of 5852109
+ 44110 strings out of 478142
+ 1024247 string characters out of 5852109
  1543144 words of memory out of 5000000
- 64045 multiletter control sequences out of 15000+600000
+ 64046 multiletter control sequences out of 15000+600000
  474879 words of font info for 79 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  86i,13n,121p,1230b,479s stack positions out of 10000i,1000n,20000p,200000b,200000s

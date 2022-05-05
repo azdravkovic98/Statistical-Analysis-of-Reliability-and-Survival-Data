@@ -778,7 +778,7 @@ expon = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size)
 loglogist = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age + as.factor(grade) + nodes + pgr, data=data, dist="loglogistic")
 
 AIC = c(extractAIC(logn)[2], extractAIC(weib)[2], extractAIC(expon)[2], extractAIC(loglogist)[2])
-names(AIC) = c("log(normal)", "weibull", "exponential", "log(logistic)")
+names(AIC) = c("Log-normal", "Weibull", "Wxponential", "Log-logistic)")
 AIC <- as.data.frame(AIC)
 
 kbl(AIC, booktabs = T, caption = "Parametric Model Evaluation") %>%
@@ -788,14 +788,14 @@ log.normal <- AIC["log(normal)",1]
 ```
 
 We first evaluate parametric models based on variables already selected in the Section \@ref(semipar-ph-models).  Here we are comparing log-normal, Weibull, exponential, and
-log-logistic AFT models. This is done by using AIC selection, and identifying if the additional parameters are worth it.  What we see is that the log-normal model has the best AIC at `r log.normal`.  It should be noted that these AIC values can not be directly compared to the semiparametric values.  
+log-logistic AFT models. This is done by using AIC selection, and identifying if the additional parameters are worth it.  What we see is that the log-normal model has the best AIC at `r log.normal` (see Table \@ref(tab:param-models)).  It should be noted that these AIC values can not be directly compared to the semiparametric values.  
 
 The parametric models considered here have two representations:
 
   * Accelerated failure time model (AFT)
   * Linear model
 
-Table \@ref(tab:param-models) shows point and interval estimates of the coefficient of variables both in the log-normal AFT model, and in the linear representation of the log-normal model.
+Table \@ref(tab:CoefficientComparison) shows point and interval estimates of the coefficient of variables both in the log-normal AFT model, and in the linear representation of the log-normal model.
 We are able to estimate the linear coefficients of the log-normal model due to the normality of it's error distribution.
 
 ```{r CoefficientComparison}
@@ -823,5 +823,7 @@ kbl(table, booktabs = T, caption = "Parametric Model Coefficient Comparison") %>
 ```
 
 
-When we look at our categorical variable \textit{hormon}, we can see that it is significant. However, the significance is borderline.
+When we look at our categorical variable \textit{hormon}, we can see that it is significant. However, the significance is borderline. Next, we evaluate menopausal patients and see that in the parametric model this covariate is not significant. Finally, looking at the size of the tumor and it's grade, they are bog highly significant in the log-normal model.
+
+
 
