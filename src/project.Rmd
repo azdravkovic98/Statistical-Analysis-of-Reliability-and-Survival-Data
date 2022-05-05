@@ -145,9 +145,11 @@ ggplot(data, aes(x = pgr, y = dtime, color = death)) +
 Now the focus will be on the response variable, the censoring indicator,
 and the categorical variable.
 
-\subsection{Survival Distrubution by Levels of \textit{Size}, \textit{Meno}, \textit{Hormon}, and \textit{Chemo}}
+\subsection{Survival Distrubution by Levels of \textit{Size}, \textit{Meno}, \textit{Hormon}, and \textit{Chemo}} \label{survival-distr}
 
 For each of the levels of the categorical variables, we will compute the survival distribution and interpret the results.
+
+The Kaplan-Meier curve illustrates the survival function. It’s a step function illustrating the cumulative survival probability over time. The curve is horizontal over periods where no event occurs, then drops vertically corresponding to a change in the survival function at each time an event occurs.
 
 \subsubsection{Size}
 
@@ -155,7 +157,7 @@ For each of the levels of the categorical variables, we will compute the surviva
 fit.size <- survfit(Surv(dtime, as.numeric(death)) ~ size, data = data)
 ```
 
-```{r message=FALSE, warning=FALSE, out.width = "70%", fig.align='center'}
+```{r message=FALSE, warning=FALSE, out.width = "65%", fig.align='center'}
 #install.packages("survminer")
 library(survminer)
 ggsurvplot(fit.size,
@@ -191,13 +193,16 @@ At time zero, the survival probability is 1.0 (or 100% of the participants are a
 
 Table \@ref(tab:median-size) shows that median survival times for patients with cancer size smaller than 20, between 20 and 50, and greater that 50 is respectively: `r fit.size.table[, 'median'][1]`, `r fit.size.table[, 'median'][2]`, and `r fit.size.table[, 'median'][3]`. This suggests worse survival for patients with tumor of larger size. However, to evaluate whether this difference is statistically significant requires a formal statistical test, a subject that is discussed in the next sections.
 
+The same conclusion can be made upon visual inspection of the Kaplan-Meier curve. 
+The blue curve displaying survival probability of patients with cancer size greater than 50 is always below the curves representing other patient groups, once again indicating worse survival time for patients with larger tumors.
+
 \subsubsection{Menopause}
 
 ```{r message=FALSE, warning=FALSE}
 fit.meno <- survfit(Surv(dtime, as.numeric(death)) ~ meno, data = data)
 ```
 
-```{r message=FALSE, warning=FALSE, out.width = "70%", fig.align='center'}
+```{r message=FALSE, warning=FALSE, out.width = "65%", fig.align='center'}
 ggsurvplot(fit.meno,
            pval = TRUE, conf.int = TRUE,
            #risk.table = TRUE, # Add risk table
@@ -230,7 +235,7 @@ menopause.
 fit.hormon <- survfit(Surv(dtime, as.numeric(death)) ~ hormon, data = data)
 ```
 
-```{r message=FALSE, warning=FALSE, out.width = "70%", fig.align='center'}
+```{r message=FALSE, warning=FALSE, out.width = "65%", fig.align='center'}
 ggsurvplot(fit.hormon,
            pval = TRUE, conf.int = TRUE,
            #risk.table = TRUE, # Add risk table
@@ -263,7 +268,7 @@ fit.chemo <- survfit(Surv(dtime, as.numeric(death)) ~ chemo, type="kaplan-meier"
 ```
 
 
-```{r message=FALSE, warning=FALSE, out.width = "70%", fig.align='center'}
+```{r message=FALSE, warning=FALSE, out.width = "65%", fig.align='center'}
 ggsurvplot(fit.chemo,
            pval = TRUE, conf.int = TRUE,
            #risk.table = TRUE, # Add risk table
@@ -288,8 +293,7 @@ kbl(fit.chemo.table,
 ```
 
 Table \@ref(tab:median-chemo) shows that the median survival time is `r fit.hormon.table[,'median'][1]` for patients that went through chemotherapy, and `r fit.hormon.table[,'median'][2]` for those who did not, suggesting slightly better survival for patients that have gone through chemotherapy. 
-The reason for this could be that 
-
+The reason for this could be that chemotherapy is a very aggressive treatment that is detrimental to a patient's immune system. Due to aggressive nature of chemotherapy it is typically reserved for patients with severe cancer. This is a plausible reason why the patients that have gone through chemotherapy tend to have shorter lives overall. 
 
 \subsection{Confidence Intervals and Estimators by Levels of \textit{Size}, \textit{Meno}, \textit{Hormon}, and \textit{Chemo}}
 
@@ -474,24 +478,32 @@ kbl(table,
 ```
 
 
-**ADD EXPLANATION ON NA VALUES, SANDRA**
 
-We first evaluate size and see similar results to what was observed in the EDA barcharts. We see that at the 25th percentile, size >50 has a very significant difference from the other two groups.  With this being significantly smaller, their dtime is significantly smaller.  This intuitively makes sense that a person who has larger cancer would have a worse life expectancy.  However, this phenomenon has faded by the 50th percentile and persists through the 75th.  This means that if a person survives the initial hurdle after surgery, they are not expected to be significantly different from the rest of the population.
-
-
-When we investigate the effect of menopause on survival, we see that generally people that are menopausal have lower survival times.  This is supported by that at the 25th, 50th, and 75th percentiles, there is no overlap in the quantiles' confidence intervals.  This means that at all stages, a menopausal person would have a shorter life.  However, this could be due to other covariates such as the fact that all menopausal people are women or that they tend to be older.
+We first evaluate \textit{size} and see similar results to what was observed in the EDA bar charts. We see that at the 25th percentile, Size > 50 has a very significant difference from the other two groups.  With this being significantly smaller, their \textit{dtime} is significantly smaller.  This intuitively makes sense that a person who has larger cancer would have a worse life expectancy. 
 
 
+When we investigate the effect of menopause on survival, we see that generally people that are menopausal have lower survival times.  This is supported by that at the 25th, and 50th percentiles, there is no overlap in the quantiles' confidence intervals.  This means that up until 75th percentile, a menopausal person would have a shorter life. However, this could be due to other covariates such as the fact that all menopausal people are women or that they tend to be older. After the 3rd quantile, we lose information about patients in the non-menopausal group. 
 
-We next evaluate the effect of hormonal treatment.  We see here that those who received hormonal treatment generally have a lower survival time.  We also see that there is no overlap between the confidence intervals indicating that not only did they have a large difference, but it sustained itself throughout the entire distribution of patients.
+
+We next evaluate the effect of hormonal treatment.  We see here that those who received hormonal treatment generally have a lower survival time.  We also see that there is no overlap between the confidence intervals indicating that not only did they have a large difference, but it sustained itself up until the 75th percentile, when we loose information on the group that did not go through the treatment.
 
 
-Finally, we evaluate the effect of chemotherapy.  Here we see that generally chemotherapy patients live longer.  However, this only becomes significant at the 75th percentile.  This means that generally patients that receive chemotherapy are not significantly affected until they live for a long time.
+Finally, we evaluate the effect of chemotherapy.  Here we see that generally chemotherapy patients live shorter.  However, this only becomes significant at the 75th percentile.  This means that generally patients that receive chemotherapy are not significantly affected until they live for a long time.
+
+Note that if one of the groups has not yet dropped to 50% survival at the end of the available data, we cannot compute a median survival and there will be NA values for median survival in such cases. The same holds for other quantiles. 
 
 
 \subsection{Test of Differences Between the Survival Curves}
 
-    
+
+In this setting we chose to use the log-rank test.  This is because we do not want to weight any observations more heavily than others.  The log-rank test is the most powerful so it is the best choice.  However, this test is only the most powerful when the hazard rates are proportional to each other within populations.  For this reason, we stratify the subjects, and perform  stratified log-rank test in order to obtain an overall assessment of the difference between survival curves, by combining information over the different strata to gain power.
+
+In Section \@ref(survival-distr) we observed differences between survival curves by levels of different categorical variables. In this section, we will also evaluate whether this difference is statistically significant using a formal statistical test - the stratified log-rank test.
+
+We focus on covariate \textit{meno}, and stratify by \textit{chemo}, \textit{size}, and \textit{hormon}.
+
+We observe significant differences between survival curves of each level of variable \textit{meno} after conducting the stratified test (see Table \@ref(tab:stratify)), indicating that menopausal status is an important factor in survival time for breast cancer patients.
+
 ```{r stratify, echo=FALSE, message=FALSE, warning=FALSE}
 # Stratification by size
 stratify.size <- survdiff(Surv(dtime, as.numeric(death)) ~ meno + strata(size), 
@@ -519,11 +531,11 @@ stratify.hormon <-
   survdiff(Surv(dtime, as.numeric(death)) ~ meno + strata(hormon), 
            data = data)
 
-chisq.hormon <- stratify.hormon$chisq
-df.hormon <- length(stratify.hormon$n) - 1
-p.hormon <- 1 - pchisq(stratify.hormon$chisq, 
-                       length(stratify.hormon$n) - 1)
-by.hormon <- c(round(chisq.hormon, 2), round(df.hormon), round(p.hormon, 5))
+chisq.hormon <- round(stratify.hormon$chisq, 3)
+df.hormon <- round(length(stratify.hormon$n) - 1)
+p.hormon <- round(1 - pchisq(stratify.hormon$chisq, 
+                       length(stratify.hormon$n) - 1), 4)
+by.hormon <- c(chisq.hormon, df.hormon, p.hormon)
 
 table <- rbind(by.chemo, by.size, by.hormon)
 rownames(table) <- c("Stratified by Chemo", 
@@ -562,20 +574,19 @@ ggsurvplot(stratify.size.fit,       # survfit object with calculated statistics.
 ```
 
 
-In this setting we chose to use the log-rank test.  This is because we do not want to weight any observations more heavily than others.  Thus, we set $W(Y(j)) = 1$.  The log-rank test is the most powerful so it is the best choice.  However, this test is only the most powerful when the hazard rates are proportional to each other within populations.  For this reason, we stratify the model to identify its impacts and make sure no assumptions are violated.
 
-What we see when we perform this stratification is a very large difference between someone without menopause and small cancer cells and someone who is menopausal and has very large cancer cells.  We also see that stratifying on age has the best fit.
+What we see in Figure \@ref(fig:stratify-size-plot) when we perform this stratification by the size of the breast cancer, is a very large difference between someone who has not gone through menopause and has small cancer cells, and someone who is menopausal and has very large cancer cells.
+
 
 \newpage
 
 \section{Modeling}
 
-
-\subsection {Semiparametric Proportional Hazards Model}
+\subsection {Semiparametric Proportional Hazards Model} \label{semipar-ph-models}
 
 For semiparametric proportional hazards model, we proceed as follows:
 
-The variable \textit{size} is a categorical variable with 3 levels. We recode the levels Size ($20-50$) and Size ($>50$) as binary variables, and take the level Size ($\leq20$) as reference level. The same holds for the variable \textit{grade}, which has 2 levels. The level \textit{Grade = 3} is coded as a new binary variable, with \textit{Grade = 2} being the reference level.
+The variable \textit{size} is a categorical variable with 3 levels. We recode the levels Size ($20-50$) and Size ($>50$) as binary variables, and take the level Size ($\leq20$) as reference level. The same holds for the variable \textit{grade}, which has 2 levels. The level Grade = 3 is coded as a new binary variable, with Grade = 2 being the reference level.
 
 In the dataset, there are 609 ties between times until death, consisting of 1376 subjects in total. Considering the existence of tied observations, Efron approximation for the likelihood function will be implemented while estimating the PH model.
 
@@ -705,10 +716,10 @@ rownames(table) <- c("Meno = 1 vs Meno = 0",
                      "Hormon = 1 vs Hormon = 0",
                      "Size $20-50$ vs Size $\\leq$ 20",                              
                      "Size $>$ 50 vs Size $\\leq$ 20",
-                     "Age = i vs Age = i-1",
+                     "Age = i vs Age = i - 1",
                      "Grade = 3 vs Grade = 2",
-                     "Nodes = i vs Nodes = i-1",
-                     "Pgr = i vs Pgr = i-1",
+                     "Nodes = i vs Nodes = i - 1",
+                     "Pgr = i vs Pgr = i - 1",
                      "Size $>$50 vs Size $20-50$")
 colnames(table) <- c("$exp(\\hat{\\beta})$", "5\\%", "95\\%")
 
@@ -750,7 +761,7 @@ With the purpose of checking constant proportional hazard assumption, we run a s
 
 
 
-```{r eval=FALSE, fig.show="hold", message=FALSE, warning=FALSE, include=FALSE, out.width="85%"}
+```{r eval=FALSE, fig.show="hold", message=FALSE, warning=FALSE, include=FALSE, out.width="80%"}
 library(survival)
 library(cowplot)
 plot(cox.zph(fit_ph_final), resid = F, hr=T, col=1,lwd=1.5)
@@ -758,7 +769,7 @@ plot(cox.zph(fit_ph_final), resid = F, hr=T, col=1,lwd=1.5)
 
 \subsection {Parametric Regression Models}
 
-```{r}
+```{r param-models, echo=FALSE, message=FALSE, warning=FALSE}
 library(KMsurv)
 library(survival)
 logn = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age + as.factor(grade) + nodes + pgr, data=data, dist="lognormal")
@@ -776,7 +787,16 @@ kbl(AIC, booktabs = T, caption = "Parametric Model Evaluation") %>%
 log.normal <- AIC["log(normal)",1]
 ```
 
-We first evaluate parametric models based on variables already selected in the previous section.  Here we are comparing log (normal), weibull, exponential, and log (logistic) distributions.  This is done by using AIC and identifying if the additional parameters are worth it.  What we see is that the log(normal) distribution has the best AIC at `r log.normal`.  It should be noted that these AIC values can not be directly compared to the semi-parametric values.  We are able to estimate the linear coefficients to be the negative of the log(normal) coefficients due to the normality of this distribution.  These can be see in Table 12.
+We first evaluate parametric models based on variables already selected in the Section \@ref(semipar-ph-models).  Here we are comparing log-normal, Weibull, exponential, and
+log-logistic AFT models. This is done by using AIC selection, and identifying if the additional parameters are worth it.  What we see is that the log-normal model has the best AIC at `r log.normal`.  It should be noted that these AIC values can not be directly compared to the semiparametric values.  
+
+The parametric models considered here have two representations:
+
+  * Accelerated failure time model (AFT)
+  * Linear model
+
+Table \@ref(tab:param-models) shows point and interval estimates of the coefficient of variables both in the log-normal AFT model, and in the linear representation of the log-normal model.
+We are able to estimate the linear coefficients of the log-normal model due to the normality of it's error distribution.
 
 ```{r CoefficientComparison}
 # Linear model predictors
@@ -804,3 +824,4 @@ kbl(table, booktabs = T, caption = "Parametric Model Coefficient Comparison") %>
 
 
 When we look at our categorical variable \textit{hormon}, we can see that it is significant. However, the significance is borderline.
+

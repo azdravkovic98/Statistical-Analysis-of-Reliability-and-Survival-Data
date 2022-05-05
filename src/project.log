@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.5.2)  5 MAY 2022 14:58
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.5.2)  5 MAY 2022 19:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1207,39 +1207,40 @@ Overfull \hbox (2.21828pt too wide) in paragraph at lines 213--214
 File: project_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/unnamed-chunk-3-1.pdf>
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 8.0pt on input line 241.
+(Font)              scaled to size 8.0pt on input line 243.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 6.0pt on input line 241.
+(Font)              scaled to size 6.0pt on input line 243.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 8.00073pt on input line 241.
+(Font)              scaled to size 8.00073pt on input line 243.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 6.00055pt on input line 241.
+(Font)              scaled to size 6.00055pt on input line 243.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 7.99915pt on input line 241.
+(Font)              scaled to size 7.99915pt on input line 243.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 5.99936pt on input line 241.
+(Font)              scaled to size 5.99936pt on input line 243.
+[4]
 File: project_files/figure-latex/unnamed-chunk-5-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/unnamed-chunk-5-1.pdf>
-[4]
 File: project_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/unnamed-chunk-7-1.pdf>
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
+[5]
 File: project_files/figure-latex/unnamed-chunk-9-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/unnamed-chunk-9-1.pdf>
-[5]
-Underfull \hbox (badness 1231) in paragraph at lines 327--327
+
+Underfull \hbox (badness 1231) in paragraph at lines 332--332
 []\TU/lmr/m/n/10 Table 6: |[][]Estimates and confidence intervals for 3 quartiles for each level of covariates
  []
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[6]
+[6] [7]
 File: project_files/figure-latex/stratify-size-plot-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/stratify-size-plot-1.pdf>
-[7] [8]
+[8]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
@@ -1254,7 +1255,7 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [10]
-Overfull \hbox (6.62868pt too wide) in paragraph at lines 524--540
+Overfull \hbox (6.62868pt too wide) in paragraph at lines 549--565
  [][] 
  []
 
@@ -1263,10 +1264,10 @@ Package rerunfilecheck Info: File `project.out' has not changed.
 (rerunfilecheck)             Checksum: 35A8C65B22F112EE1D4366EB7E2D8F78;2971.
  ) 
 Here is how much of TeX's memory you used:
- 44105 strings out of 478142
- 1024161 string characters out of 5852109
- 1542895 words of memory out of 5000000
- 64041 multiletter control sequences out of 15000+600000
+ 44109 strings out of 478142
+ 1024233 string characters out of 5852109
+ 1543144 words of memory out of 5000000
+ 64045 multiletter control sequences out of 15000+600000
  474879 words of font info for 79 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  86i,13n,121p,1230b,479s stack positions out of 10000i,1000n,20000p,200000b,200000s
