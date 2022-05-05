@@ -742,12 +742,54 @@ kbl(round(test, 4), booktabs = T, escape = FALSE, caption = "Proportional Hazard
 
 
 
-With the purpose of checking constant proportional hazard assumption, we run a statistical test based on Schoenfeld residuals for each covariate included in the fitted model with the null hypothesis of residuals being independent from time. From the Table \@ref(tab:PH-test), one can see that test is statistically highly significant for the covariates pgr and age with nodes and menopause being a borderline case. It shows that relative risks for categorical variables are constant over time while null hypothesis of constant hazard ratio is rejected for continuous variables. 
+Note that hazard ratios are assumed to be constant over time to estimate the PH model in the first place. With the purpose of checking the validity of constant proportional hazard assumption , we run a statistical test based on Schoenfeld residuals for each covariate included in the fitted model with the null hypothesis of residuals being independent from time. From the Table \@ref(tab:PH-test), one can see that test is statistically highly significant for the covariates *pgr* and *age* with nodes and menopause being a borderline case. It shows that relative risks for categorical variables are constant over time while null hypothesis of constant hazard ratio is rejected for continuous variables. It could be claimed that the violation by *age* is not entirely unexpected because the difference between the instantaneous risks of dying of two subjects with consecutive ages at a given time would logically and naturally increase as age increases even for healthy subjects without cancer and so does the proportion of these risks, which is measured by hazard ratio. Also the global test is highly significant with p-value~0 and the null hypothesis is rejected. It can be concluded that proportional hazard assumption of constant hazard ratio over time does not hold for the model since there is significant dependency between Schoenfeld residuals and time.
 
-##The global test is also highly significant and the null hypothesis can be rejected. 
-##So we can conclude that proportional hazard assumption of constant hazard ratio over time is violated since there is significant dependency between Schoenfeld residuals and time.
-**??? Do you agree we should interpret the test outputs excluding cont variables as above since its stated in the project pdf that we are interested in relative risks for categorical variables or should we just look at global test and say that assumption is violated?**
+As a solution to this problem, we propose a stratified PH model. First, the covariate pgr is stratified since its chi square statistics is the highest after it is binned with equally long (1500) bins. Then we run the test again for stratified model but the test output shows that PH assumption is still violated by the covariate *age* with a p-value 0,0022. Then we stratify it after binning it with the bins size of 20 and estimate the PH model with these stratified variables. When the test for proportional hazard assumption run again, test statistics for all covariates and global test result p-values all above 0,05 as seen in the Table. Thus, Constant PH assumption holds for the proposed stratified model.
 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+##bin cont. variables
+ data$binpgr<-cut(data$pgr,breaks = c(0,1500,3000,4500,6000))
+ data$binage<-cut(data$age,breaks = c(20,40,60,80,100))
+ ##stratified ph model
+ fit5<-coxph(
+    Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age +
+        as.factor(grade) + nodes + strata(binpgr),
+    data = data,
+    ties = "efron"
+)
+ cox.zph(fit5)
+ fit6<-coxph(
+    Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + strata(binage)+  as.factor(grade) + nodes + strata(binpgr),
+    data = data,
+    ties = "efron"
+)
+ 
+ cox.zph(fit6)
+ test2 <- cox.zph(fit6)$table
+colnames(test2) <- c("$\\chi^2$",
+                    "df",
+                    "p-value")
+rownames(test2) <- c("Meno",
+                     "Hormon",
+                     "Size",
+                     "Grade",
+                     "Nodes",
+                     "GLOBAL")
+kbl(round(test2, 4), booktabs = T, escape = FALSE, caption = "Proportional Hazard Test") %>%
+  kable_styling(latex_options = c("striped", "hold_position"))
+ 
+```
+Lastly, we check again the significance level of covariates in the final model we propose to confirm whether the model selection performed at the beginning is still valid. As seen in the table, all variables are still highly significant for the model except the *hormon* but we decided to keep it in the model since its p-value of 0,0523 is on the borderline.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(fit6)
+anova(fit6)
+kbl(anova(fit6), 
+    escape = FALSE, booktabs = T,
+    caption = "Chi Square and P-Values for the Stratified PH Model") %>%
+  kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
+```
 
 
 ```{r eval=FALSE, fig.show="hold", message=FALSE, warning=FALSE, include=FALSE, out.width="85%"}
