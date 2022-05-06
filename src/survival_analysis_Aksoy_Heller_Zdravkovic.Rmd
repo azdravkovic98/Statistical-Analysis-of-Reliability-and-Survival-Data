@@ -32,6 +32,8 @@ In the Rotterdam dataset we encounter right censored data only. Right censoring 
 
 ```{r message=FALSE, warning=FALSE}
 library(survival)
+library(stats)
+
 data <- rotterdam
 
 data$death <- as.factor(data$death)
@@ -104,19 +106,14 @@ plot(hormonBox)
 
 \subsection{Continuous Variables}
 
-Among continuous variables, we first investigated age.  We plotted a both the lowess curve and the linear model to see if they match.  If so, they most likely have data with a limited skew and do not require transformation for modeling.  We first evaluated age and there was not a difference between the linear and lowess curves.  Next, we investigated the relationship between er and death time.  Here we see a large deviation which was corrected for again with a log transform.  Finally, we evaluated pgr and it had a good fit overall.
+
+When investigating continuous variables, we plotted both the LOWESS curve and the linear model to see if they match.  If so, they most likely have data with a limited skew and do not require transformation for modeling. First, we investigated the relationship between \textit{er} and death time.  Here we see a large deviation which was corrected for with a log transformation. Covariate \textit{pgr} performs similarly to \textit{er}.
+Finally, we evaluated \textit{age} and there was not a difference between the linear and LOWESS curves.
+For these reasons, models with logarithmic transformations of covariates *er* and *pgr* will be evaluated in Section \@ref(modeling).
 
 
 
 ```{r scatterPlots, include=TRUE, message=FALSE, warning=FALSE, fig.show = "hold", out.width = "50%"}
-
-# Basic age
-ggplot(data, aes(x = age, y = dtime, color = death)) +
-  geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
-  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) +
-  theme_minimal()+
-  scale_color_manual(values=c("darkolivegreen", "darkred"))
-
 # er
 ggplot(data, aes(x = er, y = dtime, color = death)) +
   geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
@@ -131,12 +128,49 @@ ggplot(data, aes(x = log(er), y = dtime, color = death)) +
   theme_minimal()+
   scale_color_manual(values=c("darkolivegreen", "darkred"))
 
+# basic pgr
 ggplot(data, aes(x = pgr, y = dtime, color = death)) +
   geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
   geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) +
   theme_minimal()+
   scale_color_manual(values=c("darkolivegreen", "darkred"))
+
+# log(pgr)
+ggplot(data, aes(x = log(pgr), y = dtime, color = death)) +
+  geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
+  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) +
+  theme_minimal()+
+  scale_color_manual(values=c("darkolivegreen", "darkred"))
+
+# Basic age
+ggplot(data, aes(x = age, y = dtime, color = death)) +
+  geom_point() + geom_smooth(formula='y ~ x', method="loess",size=2, se=FALSE) + 
+  geom_smooth(formula='y ~ x', method="lm",size=2, se=FALSE) +
+  theme_minimal()+
+  scale_color_manual(values=c("darkolivegreen", "darkred"))
+
 ```
+
+
+\subsection{Interaction Terms}
+
+```{r interaction-plot, echo=FALSE, message=FALSE, warning=FALSE, fig.align='center', out.width="70%"}
+# interaction chemo:meno
+interaction.plot(x.factor=data$meno, 
+                 trace.factor=data$chemo, 
+                 response=data[,"dtime"], 
+                 fun=mean, 
+                 type="b", 
+                 legend=T,
+                 xlab="Hormon",
+                 ylab="Death Time Means",
+                 main="Interaction Meno:Chemo",
+                 trace.label="Chemo",
+                 pch=c(1,19), 
+                 col = "darkolivegreen")
+```
+
+When evaluating the interaction plot, we see that the lines are not parallel. This indicates there is an interaction effect between the two, i.e. the death time of menopausal patients is affected by chemotherapy treatment. This is why model with this interaction will be evaluated in Section \@ref(modeling).
 
 \newpage
 
@@ -580,7 +614,8 @@ What we see in Figure \@ref(fig:stratify-size-plot) when we perform this stratif
 
 \newpage
 
-\section{Modeling}
+\section{Modeling} \label{modeling}
+
 
 \subsection {Semiparametric Proportional Hazards Model} \label{semipar-ph-models}
 
@@ -588,7 +623,7 @@ For semiparametric proportional hazards model, we proceed as follows:
 
 The variable \textit{size} is a categorical variable with 3 levels. We recode the levels Size ($20-50$) and Size ($>50$) as binary variables, and take the level Size ($\leq20$) as reference level. The same holds for the variable \textit{grade}, which has 2 levels. The level Grade = 3 is coded as a new binary variable, with Grade = 2 being the reference level.
 
-In the dataset, there are 609 ties between times until death, consisting of 1376 subjects in total. Considering the existence of tied observations, Efron approximation for the likelihood function will be implemented while estimating the PH model.
+In the dataset, there are 609 ties between times until death, consisting of 1376 subjects in total. Considering the existence of tied observations, Efron approximation for the likelihood function will be implemented while estimating the PH model. 
 
 Lastly, when estimating the full model, variables \textit{rtime} and \textit{recur} are excluded, since they are not the chosen event of interest. We then estimate the full semiparametric proportional hazard model.
 
@@ -601,11 +636,12 @@ library(dplyr)
 data %>% group_by(dtime)%>%summarise(count=n())%>%filter(count>1)%>%summarise(ties=n(),tied_observ=sum(count))
 
 ##fitting full model
-
+data$log.pgr <- log(data$pgr + 2)
+data$log.er <- log(data$er + 2)
 fit_ph1 <-
   coxph(
-    Surv(dtime, as.numeric(death)) ~ chemo + meno + hormon + as.factor(size) +
-      age + as.factor(grade) + nodes + pgr + er,
+    Surv(dtime, as.numeric(death)) ~ age+meno+size+grade+
+                                  log.pgr+log.er+hormon+chemo+meno:chemo,
     data = data, ties = "efron"
   )
 
@@ -629,8 +665,13 @@ anova(fit_ph3)
 #all variables in fit_ph3 is significant
 
 #variable selection based on AIC
-#stepAIC <- stepAIC(fit_ph1,direction="both")
-
+stepAIC <- stepAIC(fit_ph1, scale = 0,direction = "both",trace = 1, keep = NULL, steps = 1000, 
+        use.start = FALSE,k = 2)
+fit_inter <-   coxph(
+    Surv(dtime, as.numeric(death)) ~ age + meno + size + grade + 
+    log.pgr + chemo + meno:chemo,
+    data = data, ties = "efron"
+  )
 #chosen model:Surv(dtime, death) ~ as.factor(size) + age +
 # as.factor(grade) + nodes + pgr
 
@@ -642,8 +683,8 @@ fit_ph_aic = coxph(
 )
 summary(fit_ph_aic)
 
-AIC = c(extractAIC(fit_ph_aic)[2], extractAIC(fit_ph3)[2])
-names(AIC) = c("AIC Selection", "Backward Selection")
+AIC = c(extractAIC(fit_ph_aic)[2], extractAIC(fit_ph3)[2], extractAIC(fit_inter)[2])
+names(AIC) = c("AIC Selection", "Backward Selection", "Model with Interaction and Trasformation")
 ###No huge difference in AIC
 fit_ph_final <- fit_ph3
 
@@ -655,19 +696,27 @@ rownames(AIC.table) <- "AIC"
 
 kbl(AIC.table, 
     escape = FALSE, booktabs = T,
-    caption = "AIC Values for Models Selected by Stepwise AIC Procedure, and Backward Selection Procedure") %>%
+    caption = "AIC Values for Different Models") %>%
   kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
 ```
+
+
 
 For model selection with all covariates, we first apply backward selection procedure to the fitted full model. By excluding the covariate with the largest p-value based on $\chi^2$ statistics in each iteration, we ended up with the model where significant covariates are \textit{size, age, grade, nodes, pgr, meno, hormon}.
 
 As an alternative model selection procedure, we run stepwise AIC selection in both directions, which compares models consisted of all possible combinations of covariates, and selects the one with the lowest AIC value. This resulted with the model where significant covariates are \textit{size, age, grade, nodes, pgr}. 
 
-To decide which procedure should be used to choose the model, we approach from 2 different points. 
+The last model we evaluate contains logarithmic transformations of *pgr* and *er*, as well as an interaction term between *meno* and *chemo*. These covariate modifications were inspired by our exploratory data analysis (see Section \@ref(EDA)). However, it has a worse AIC value than the other two models considered.
+
+We next need to decide between the remaining two models, and we are taking two different approaches to do so. 
 From a logical point of view, the model including variable \textit{hormon} seems reasonable, since hormonal treatment has an influence on both death time and censoring time of subjects, as we have seen in Section \@ref(EDA). 
 On the other side, if we compare AIC of both models, from Table \@ref(tab:AIC-table) we see that there is no big difference between the two models (`r round(AIC[1])` and `r round(AIC[2])`, respectively). That is why we decide to use the model selected by the backward selection procedure, as it includes variable \textit{hormon} in exchange of acceptable increase in AIC.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+The estimates of the selected model's covariates are shown in Table \@ref(tab:selected-model-est).
+
+
+```{r selected-model-est, echo=FALSE, message=FALSE, warning=FALSE}
 table <- cbind(fit_ph_final$coefficients)
 colnames(table) <- "$\\hat{\\beta}$"
 rownames(table) <- c("Meno = 1",
@@ -705,6 +754,7 @@ ci <- c(e, lb, ub)
 names(ci) <- c("est", "lb", "ub")
 ```
 
+\newpage
 
 ```{r relative-risks-tbl, echo=FALSE, message=FALSE, warning=FALSE}
 model <- fit_ph_final
@@ -720,7 +770,7 @@ rownames(table) <- c("Meno = 1 vs Meno = 0",
                      "Grade = 3 vs Grade = 2",
                      "Nodes = i vs Nodes = i - 1",
                      "Pgr = i vs Pgr = i - 1",
-                     "Size $>$50 vs Size $20-50$")
+                     "Size $>$ 50 vs Size $20-50$")
 colnames(table) <- c("$exp(\\hat{\\beta})$", "5\\%", "95\\%")
 
 kbl(table, 
@@ -729,8 +779,16 @@ kbl(table,
   kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
 ```
 
+
 Estimation and CI of relative risks for every pair of levels of the
 categorical variables are calculated and shown in the Table \@ref(tab:relative-risks-tbl). 
+
+
+
+\subsection{Stratified Proportional Hazards Model}
+
+The proportional hazards model assumes that hazard ratios are constant over time. With the purpose of checking the validity of the constant proportional hazard assumption, we perform a statistical test based on Schoenfeld residuals. The null hypothesis for each covariate included in the fitted model is that the residuals are independent from time. 
+
 
 
 ```{r PH-test, echo=FALSE, message=FALSE, warning=FALSE}
@@ -747,21 +805,73 @@ rownames(test) <- c("Meno",
                      "Nodes",
                      "Pgr", 
                      "GLOBAL")
-kbl(round(test, 4), booktabs = T, escape = FALSE, caption = "Proportional Hazard Test") %>%
+kbl(round(test, 4), booktabs = T, escape = FALSE, caption = "Proportional Hazard Test for Non-Stratified PH Model") %>%
   kable_styling(latex_options = c("striped", "hold_position"))
 ```
 
 
+From the Table \@ref(tab:PH-test), one can see that test is statistically highly significant for the covariates *pgr* and *age* with *nodes* and *meno* being a borderline case. It shows that relative risks for categorical variables are constant over time, while null hypotheses of constant hazard ratio for continuous variables is rejected. 
 
-With the purpose of checking constant proportional hazard assumption, we run a statistical test based on Schoenfeld residuals for each covariate included in the fitted model with the null hypothesis of residuals being independent from time. From the Table \@ref(tab:PH-test), one can see that test is statistically highly significant for the covariates pgr and age with nodes and menopause being a borderline case. It shows that relative risks for categorical variables are constant over time while null hypothesis of constant hazard ratio is rejected for continuous variables. 
+Also, the global PH test is highly significant. Hence, there is a significant dependency between Schoenfeld residuals and time, and it can be concluded that the assumption of constant hazard ratios over time does not hold for the model.
 
-##The global test is also highly significant and the null hypothesis can be rejected. 
-##So we can conclude that proportional hazard assumption of constant hazard ratio over time is violated since there is significant dependency between Schoenfeld residuals and time.
-**??? Do you agree we should interpret the test outputs excluding cont variables as above since its stated in the project pdf that we are interested in relative risks for categorical variables or should we just look at global test and say that assumption is violated?**
+As a solution to this problem, we propose a stratified PH model. 
+First, the covariate *pgr* is stratified, since its $\chi^2$ statistics is the highest after it is binned with equally sized bins (1500). 
+Next, we perform the PH test again for stratified model. However, the test shows that PH assumption is still violated by the covariate *age*. Hence, we stratify by *age* after binning it with size 20 bins and estimate the PH model with these stratified variables. After performing the test for proportional hazard assumption again, we can see that the constant PH assumption holds for the proposed stratified model (see Table \@ref(tab:strat-PH)).
 
 
+```{r strat-PH, echo=FALSE, message=FALSE, warning=FALSE}
+##bin cont. variables
+ data$binpgr<-cut(data$pgr,breaks = c(0,1500,3000,4500,6000))
+ data$binage<-cut(data$age,breaks = c(20,40,60,80,100))
+ ##stratified ph model
+ fit5<-coxph(
+    Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age +
+        as.factor(grade) + nodes + strata(binpgr),
+    data = data,
+    ties = "efron")
+fit6<-coxph(
+    Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + strata(binage)+  as.factor(grade) + nodes + strata(binpgr),
+    data = data,
+    ties = "efron")
+ 
+test2 <- cox.zph(fit6)$table
+colnames(test2) <- c("$\\chi^2$",
+                    "df",
+                    "p-value")
+rownames(test2) <- c("Meno",
+                     "Hormon",
+                     "Size",
+                     "Grade",
+                     "Nodes",
+                     "GLOBAL")
+kbl(round(test2, 4), booktabs = T, escape = FALSE, caption = "Proportional Hazard Test for Stratified PH Model") %>%
+  kable_styling(latex_options = c("striped", "hold_position"))
+ 
+```
 
-```{r eval=FALSE, fig.show="hold", message=FALSE, warning=FALSE, include=FALSE, out.width="80%"}
+Lastly, we check the significance level of covariates in the final model - the stratified PH model. To confirm whether the model selection performed at the beginning of the analysis is still valid, we can look at the significance of the covariates in Table \@ref(tab:signif-strat-ph).
+
+```{r signif-strat-ph, echo=FALSE, message=FALSE, warning=FALSE}
+tbl <- anova(fit6)
+colnames(tbl) <- c("Log-likelihood",
+                    "$\\chi^2$",
+                    "df",
+                    "p-value")
+rownames(tbl) <- c("NULL",
+                     "Meno",
+                     "Hormon",
+                     "Size",
+                     "Grade",
+                     "Nodes")
+
+kbl(tbl, 
+    escape = FALSE, booktabs = T,
+    caption = "Chi Square and P-Values for the Stratified PH Model") %>%
+  kable_styling(font_size = 10, latex_options = c("striped", "hold_position"))
+```
+
+
+```{r eval=FALSE, fig.show="hold", message=FALSE, warning=FALSE, include=FALSE, out.width="85%"}
 library(survival)
 library(cowplot)
 plot(cox.zph(fit_ph_final), resid = F, hr=T, col=1,lwd=1.5)
@@ -769,7 +879,7 @@ plot(cox.zph(fit_ph_final), resid = F, hr=T, col=1,lwd=1.5)
 
 \subsection {Parametric Regression Models}
 
-```{r param-models, echo=FALSE, message=FALSE, warning=FALSE}
+```{r param-AIC, echo=FALSE, message=FALSE, warning=FALSE}
 library(KMsurv)
 library(survival)
 logn = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age + as.factor(grade) + nodes + pgr, data=data, dist="lognormal")
@@ -778,17 +888,17 @@ expon = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size)
 loglogist = survreg(Surv(dtime, as.numeric(death)) ~ meno + hormon + as.factor(size) + age + as.factor(grade) + nodes + pgr, data=data, dist="loglogistic")
 
 AIC = c(extractAIC(logn)[2], extractAIC(weib)[2], extractAIC(expon)[2], extractAIC(loglogist)[2])
-names(AIC) = c("Log-normal", "Weibull", "Wxponential", "Log-logistic)")
+names(AIC) = c("Log-normal", "Weibull", "Exponential", "Log-logistic)")
 AIC <- as.data.frame(AIC)
 
 kbl(AIC, booktabs = T, caption = "Parametric Model Evaluation") %>%
   kable_styling(latex_options = c("striped", "hold_position")) 
 
-log.normal <- AIC["log(normal)",1]
+log.normal <- AIC["Log-normal",1]
 ```
 
 We first evaluate parametric models based on variables already selected in the Section \@ref(semipar-ph-models).  Here we are comparing log-normal, Weibull, exponential, and
-log-logistic AFT models. This is done by using AIC selection, and identifying if the additional parameters are worth it.  What we see is that the log-normal model has the best AIC at `r log.normal` (see Table \@ref(tab:param-models)).  It should be noted that these AIC values can not be directly compared to the semiparametric values.  
+log-logistic AFT models. This is done by using AIC selection, and identifying if the additional parameters are worth it.  What we see is that the log-normal model has the best AIC at `r log.normal` (see Table \@ref(tab:param-AIC)).  It should be noted that these AIC values can not be directly compared to the semiparametric values.  
 
 The parametric models considered here have two representations:
 
@@ -798,7 +908,8 @@ The parametric models considered here have two representations:
 Table \@ref(tab:CoefficientComparison) shows point and interval estimates of the coefficient of variables both in the log-normal AFT model, and in the linear representation of the log-normal model.
 We are able to estimate the linear coefficients of the log-normal model due to the normality of it's error distribution.
 
-```{r CoefficientComparison}
+
+```{r CoefficientComparison, echo=FALSE, message=FALSE, warning=FALSE}
 # Linear model predictors
 library(broom)
 
@@ -823,7 +934,6 @@ kbl(table, booktabs = T, caption = "Parametric Model Coefficient Comparison") %>
 ```
 
 
-When we look at our categorical variable \textit{hormon}, we can see that it is significant. However, the significance is borderline. Next, we evaluate menopausal patients and see that in the parametric model this covariate is not significant. Finally, looking at the size of the tumor and it's grade, they are bog highly significant in the log-normal model.
-
+When we look at our categorical variable \textit{hormon}, we can see that it is significant. However, the significance is borderline. Next, we evaluate menopausal patients and see that in the parametric model this covariate is not significant. Finally, looking at the size of the tumor and it's grade, they are both highly significant in the log-normal model.
 
 

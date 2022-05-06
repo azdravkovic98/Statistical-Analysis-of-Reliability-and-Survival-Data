@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.5.2)  5 MAY 2022 20:07
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.5.2)  5 MAY 2022 23:17
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1193,32 +1193,36 @@ File: project_files/figure-latex/scatterPlots-3.pdf Graphic file (type pdf)
 <use project_files/figure-latex/scatterPlots-3.pdf>
 File: project_files/figure-latex/scatterPlots-4.pdf Graphic file (type pdf)
 <use project_files/figure-latex/scatterPlots-4.pdf>
+File: project_files/figure-latex/scatterPlots-5.pdf Graphic file (type pdf)
+<use project_files/figure-latex/scatterPlots-5.pdf>
 
-Overfull \hbox (2.21828pt too wide) in paragraph at lines 213--214
+Overfull \hbox (2.21828pt too wide) in paragraph at lines 215--216
 [][] []
  []
 
 
-Overfull \hbox (2.21828pt too wide) in paragraph at lines 213--214
-[] [] 
+Overfull \hbox (2.21828pt too wide) in paragraph at lines 215--216
+[] []
  []
 
-[3]
+File: project_files/figure-latex/interaction-plot-1.pdf Graphic file (type pdf)
+<use project_files/figure-latex/interaction-plot-1.pdf>
+[3] [4]
 File: project_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/unnamed-chunk-3-1.pdf>
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 8.0pt on input line 243.
+(Font)              scaled to size 8.0pt on input line 251.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 6.0pt on input line 243.
+(Font)              scaled to size 6.0pt on input line 251.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 8.00073pt on input line 243.
+(Font)              scaled to size 8.00073pt on input line 251.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 6.00055pt on input line 243.
+(Font)              scaled to size 6.00055pt on input line 251.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 7.99915pt on input line 243.
+(Font)              scaled to size 7.99915pt on input line 251.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 5.99936pt on input line 243.
-[4]
+(Font)              scaled to size 5.99936pt on input line 251.
+[5]
 File: project_files/figure-latex/unnamed-chunk-5-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/unnamed-chunk-5-1.pdf>
 File: project_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file (type pdf)
@@ -1226,56 +1230,48 @@ File: project_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file (type pdf)
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[5]
+[6]
 File: project_files/figure-latex/unnamed-chunk-9-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/unnamed-chunk-9-1.pdf>
 
-Underfull \hbox (badness 1231) in paragraph at lines 332--332
+Underfull \hbox (badness 1231) in paragraph at lines 340--340
 []\TU/lmr/m/n/10 Table 6: |[][]Estimates and confidence intervals for 3 quartiles for each level of covariates
  []
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[6] [7]
+[7] [8]
 File: project_files/figure-latex/stratify-size-plot-1.pdf Graphic file (type pdf)
 <use project_files/figure-latex/stratify-size-plot-1.pdf>
-[8]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
 [9]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-
-LaTeX Warning: Reference `param-models' on page 10 undefined on input line 530.
-
 [10]
-Overfull \hbox (6.62868pt too wide) in paragraph at lines 549--565
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[11]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[12]
+Overfull \hbox (6.62868pt too wide) in paragraph at lines 610--626
  [][] 
  []
 
-[11] (./project.aux)
-
-LaTeX Warning: There were undefined references.
-
+[13] (./project.aux)
 Package rerunfilecheck Info: File `project.out' has not changed.
-(rerunfilecheck)             Checksum: 35A8C65B22F112EE1D4366EB7E2D8F78;2971.
+(rerunfilecheck)             Checksum: 134BDC822F4012438F131F7548E410C1;3369.
  ) 
 Here is how much of TeX's memory you used:
- 44110 strings out of 478142
- 1024247 string characters out of 5852109
- 1543144 words of memory out of 5000000
- 64046 multiletter control sequences out of 15000+600000
+ 44135 strings out of 478142
+ 1025332 string characters out of 5852109
+ 1543835 words of memory out of 5000000
+ 64069 multiletter control sequences out of 15000+600000
  474879 words of font info for 79 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  86i,13n,121p,1230b,479s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on project.pdf (12 pages).
+Output written on project.pdf (14 pages).
